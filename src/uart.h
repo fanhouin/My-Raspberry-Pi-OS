@@ -16,5 +16,25 @@
 #define AUX_MU_STAT     ((volatile unsigned int*)(AUX_BASE+0x64))
 #define AUX_MU_BAUD     ((volatile unsigned int*)(AUX_BASE+0x68))
 
+/*
+Set baud rate and characteristics (115200 8N1) and map to GPIO
+*/
+void uart_init();
+
+/*
+Send a character
+*/
+void uart_send(unsigned int);
+
+/*
+Receive a character
+*/
+char uart_getc();
+
+/*
+Display a string
+*/
+void uart_puts(char*)
+
 
 #endif
