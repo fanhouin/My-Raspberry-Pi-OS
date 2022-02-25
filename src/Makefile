@@ -10,7 +10,7 @@ kernel8.img: start.o
 	aarch64-linux-gnu-objcopy -O binary kernel8.elf kernel8.img
 
 clean:
-	rm kernel.elf *.o >/dev/null 2>/dev/null || true
+	rm *.elf *.o *.img >/dev/null 2>/dev/null || true
 
 run: 
 	qemu-system-aarch64 -M raspi3 -kernel kernel8.img -display none -d in_asm
