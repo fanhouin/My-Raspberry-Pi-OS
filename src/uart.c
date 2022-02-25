@@ -15,7 +15,7 @@ void uart_init(){
     /* map UART1 to GPIO pins */
     reg = *GPFSEL1;
     reg &= ~((7<<12) | (7<<15));    // gpio14,15 check uart.h
-    reg |= ((7<<12) | (7<<15));     // alt5
+    reg |= ((2<<12) | (2<<15));     // alternate function 5 (TXD1 and RXD1)
     *GPFSEL1 = reg;
     /* Enable pins 14 and 15(disable pull-up/down, "floating" input pin with no pull-up or pull-down resistors) */
     *GPPUD = 0;                     
@@ -39,7 +39,7 @@ void uart_send(unsigned int c){
     wait until we can send
     0x20/bit_6 is set if the transmit FIFO is empty and the
     transmitter is idle. (Finished shifting out the last bit).
-     */
+    */
     do{asm volatile("nop");} while(!(*AUX_MU_LSR & 0x20));
 
     /* write the character to the buffer */
@@ -59,7 +59,7 @@ char uart_getc(){
     read. To do a non-destructive read of this overrun bit
     use the Mini Uart Extra Status register. 
     */
-    do{asm volatile("nop");}while(!(*AUX_MU_LSR & 0x01));
+    do{asm volatile("nop");} while(!(*AUX_MU_LSR & 0x01));
     /* read it and return */
     char r;
     r = (char)(*AUX_MU_IO);

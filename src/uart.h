@@ -34,7 +34,7 @@ char uart_getc();
 /*
 Display a string
 */
-void uart_puts(char*)
+void uart_puts(char*);
 
 
 #endif
