@@ -1,0 +1,3 @@
+src/*.elf
+src/*.o
+src/*.img
