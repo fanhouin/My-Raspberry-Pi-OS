@@ -40,8 +40,35 @@ int strcmp(const char *p1, const char *p2)
 /* string length */
 unsigned int strlen(const char *buf){
   unsigned int len;
-  for(len = 0; ; len++){
+  for(len = 0; len < MAX_SIZE; len++){
     if(buf[len] == '\0') return(len);
   }
   return 0;
+}
+
+/* reverse string */
+void reverse_string(char *buf){
+  unsigned int len = strlen(buf);
+  char tmp;
+  for(unsigned int i = 0; i < len/2; i++){
+    tmp = buf[i];
+    buf[i] = buf[len-i-1];
+    buf[len-i-1] = tmp;
+  }
+}
+
+/* int to char */
+void itoa(int num, char *buf){
+  int i = 0;
+  int sign = 0;
+  if(num < 0){
+    sign = 1;
+    num = -num;
+  }
+  do{
+    buf[i++] = num % 10 + '0';
+  }while((num /= 10) > 0);
+  if(sign) buf[i++] = '-';
+  buf[i] = '\0';
+  reverse_string(buf);
 }

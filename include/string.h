@@ -11,4 +11,10 @@ int strcmp(const char *, const char *);
 /* string length */
 unsigned int strlen(const char *);
 
+/* reverse string */
+void reverse_buf(char *);
+
+/* int to char */
+void itoa(int, char *);
+
 #endif 
