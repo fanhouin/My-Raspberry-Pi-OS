@@ -4,3 +4,5 @@ src/*.o
 boot/*.o
 *.elf
 *.img
+peda*
+.gdb*

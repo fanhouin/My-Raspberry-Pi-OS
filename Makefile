@@ -1,7 +1,7 @@
 CC = aarch64-linux-gnu-gcc
 LD = aarch64-linux-gnu-ld
 OBJCOPY = aarch64-linux-gnu-objcopy
-INCLUDE = -Iinclude
+INCLUDE = -I ./include/
 
 SFILES = $(wildcard src/*.c)
 OFILES = $(patsubst %.c, %.o, $(SFILES)) # OFILES = $(SFILES:.c=.o)

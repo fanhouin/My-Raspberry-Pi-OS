@@ -1,5 +1,5 @@
-#include "uart.h"
-#include "gpio.h"
+#include <uart.h>
+#include <gpio.h>
 
 void uart_init(){
     *AUX_ENABLE     |= 1;   // Enable mini UART.
@@ -10,23 +10,20 @@ void uart_init(){
     *AUX_MU_BAUD    = 270;  // Set baud rate to 115200
     *AUX_MU_IIR     = 6;    // No FIFO
 
-    register unsigned int reg;
-
     /* map UART1 to GPIO pins */
+    register unsigned int reg;
     reg = *GPFSEL1;
     reg &= ~((7<<12) | (7<<15));    // gpio14,15 check uart.h
     reg |= ((2<<12) | (2<<15));     // alternate function 5 (TXD1 and RXD1)
     *GPFSEL1 = reg;
-    /* Enable pins 14 and 15(disable pull-up/down, "floating" input pin with no pull-up or pull-down resistors) */
+    /* Enable pins 14 and 15 (disable pull-up/down, "floating" input pin with no pull-up or pull-down resistors) */
     *GPPUD = 0;                     
     /* Wait 150 cycles – this provides the required set-up time for the control signal */
-    reg = 150; 
-    while(reg--) { asm volatile("nop"); }
+    for(reg = 0; reg > 150; reg--) {asm volatile("nop");}
     /* Write to GPPUDCLK0/1 to clock the control signal into the GPIO pads you wish to modify */
     *GPPUDCLK0 = (1<<14) | (1<<15);
     /* Wait 150 cycles – this provides the required set-up time for the control signal */
-    reg = 150; 
-    while(reg--) { asm volatile("nop"); }
+    for(reg = 0; reg > 150; reg--) {asm volatile("nop");}
     *GPPUDCLK0 = 0;                 // flush GPIO setup
     *AUX_MU_CNTL = 3;               // enable Tx, Rx
 }
@@ -61,8 +58,7 @@ char uart_getc(){
     */
     do{asm volatile("nop");} while(!(*AUX_MU_LSR & 0x01));
     /* read it and return */
-    char r;
-    r = (char)(*AUX_MU_IO);
+    char r = (char)(*AUX_MU_IO);
     /* convert carrige return to newline */
     return r == '\r'?'\n':r;
 }
