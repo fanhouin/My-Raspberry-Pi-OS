@@ -20,6 +20,7 @@ void PrintHelp(){
 int readline(char *buf, int size){
   unsigned int idx = 0;
   char c = uart_getc();
+  if (c == '\n') uart_send('\r');
   uart_send(c);
 
   while(c != '\n'){
@@ -27,6 +28,7 @@ int readline(char *buf, int size){
           buf[idx++] = c;
       }
       c = uart_getc();
+      if (c == '\n') uart_send('\r');
       uart_send(c); // need to recv the echo back
   }
   buf[idx] = '\0';
@@ -45,8 +47,11 @@ void ShellLoop(){
     if(strcmp("help", buf) == 0) PrintHelp();
     else if(strcmp("hello", buf) == 0) uart_puts("Hello World!\n");
     else if(strcmp("reboot", buf) == 0) uart_puts("Rebooting...\n");
-    else uart_puts("Unknown command\n");
-    
+    else {
+      uart_puts("Unknown command: ");
+      uart_puts(buf);
+      uart_puts("\n");
+    }
 
     uart_puts("# ");
   }
