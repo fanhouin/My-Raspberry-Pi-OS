@@ -11,7 +11,7 @@ ALLOFILES = $(OFILES) $(BOOTOFILES)
 
 CFLAGS = -Wall -O2 -ffreestanding -nostdinc -nostdlib -nostartfiles
 
-all: clean kernel8.img run
+all: clean kernel8.img
 
 %.o: %.S
 	$(CC) $(CFLAGS) $(INCLUDE) -c $< -o $@ 
