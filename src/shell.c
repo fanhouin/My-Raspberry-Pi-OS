@@ -15,6 +15,7 @@ void PrintHelp(){
   uart_puts("------------------ Help Message ------------------\n");
   uart_puts("help     : print this help menu\n");
   uart_puts("hello    : print Hello World!\n");
+  uart_puts("revision : print board_revision\n");
   uart_puts("reboot   : reboot the device\n");
 }
 
@@ -25,14 +26,32 @@ void PrintUnknown(char buf[MAX_SIZE]){
 }
 
 void PrintRevision(char buf[MAX_SIZE]){
-  unsigned int mailbox[7];
-  unsigned int statu = get_board_revision(mailbox);
-  if (statu == REQUEST_SUCCEED){
-    uart_puts("Board revision: 0x");
-    uitohex(mailbox[5], buf);
+  volatile unsigned int __attribute__((aligned(16))) mbox[36];
+  unsigned int success = get_board_revision(mbox);
+  if (success){
+    uart_puts("Board Revision: 0x");
+    uitohex(mbox[5], buf);
     uart_puts(buf);
     uart_puts("\n");
-  } else if(statu == REQUEST_FAILED){
+  } else{
+    uart_puts("Failed to get board revision\n");
+  }
+}
+
+void PrintMemory(char buf[MAX_SIZE]){
+  volatile unsigned int __attribute__((aligned(16))) mbox[36];
+  unsigned int success = get_arm_memory(mbox);
+  if (success){
+    uart_puts("ARM Memory Base Address: 0x");
+    uitohex(mbox[5], buf);
+    uart_puts(buf);
+    uart_puts("\n");
+
+    uart_puts("Size: 0x");
+    uitohex(mbox[6], buf);
+    uart_puts(buf);
+    uart_puts("\n");
+  } else{
     uart_puts("Failed to get board revision\n");
   }
 }
@@ -68,6 +87,7 @@ void ShellLoop(){
     else if(strcmp("hello", buf) == 0) uart_puts("Hello World!\n");
     else if(strcmp("reboot", buf) == 0) uart_puts("Rebooting...\n");
     else if(strcmp("revision", buf) == 0) PrintRevision(buf);
+    else if(strcmp("memory", buf) == 0) PrintMemory(buf);
     else PrintUnknown(buf);
 
     uart_puts("# ");

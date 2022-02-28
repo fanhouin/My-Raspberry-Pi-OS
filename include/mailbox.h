@@ -23,8 +23,8 @@
 
 #define MAILBOX_CH_PROP     8
 
-unsigned int get_board_revision(unsigned int [7]);
-void get_arm_memory();
-unsigned int mailbox_call(unsigned int *, unsigned char);
+unsigned int get_board_revision(volatile unsigned int [36]);
+unsigned int get_arm_memory(volatile unsigned int [36]);
+unsigned int mailbox_call(volatile unsigned int [36], unsigned char);
 
 #endif
