@@ -1,7 +1,8 @@
 #ifndef UART_H_
 #define UART_H_
+#include <gpio.h>
 
-#define AUX_BASE        (0x3F000000 + 0x00215000) //MMIO base address + AUX offset
+#define AUX_BASE        (MMIO_BASE + 0x00215000) //MMIO base address + AUX offset
 #define AUX_ENABLE      ((volatile unsigned int*)(AUX_BASE+0x4))
 #define AUX_MU_IO       ((volatile unsigned int*)(AUX_BASE+0x40))
 #define AUX_MU_IER      ((volatile unsigned int*)(AUX_BASE+0x44))

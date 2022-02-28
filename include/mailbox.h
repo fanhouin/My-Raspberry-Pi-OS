@@ -1,7 +1,8 @@
-#ifndef GPIO_H_
-#define GPIO_H_
+#ifndef MAILBOX_H_
+#define MAILBOX_H_
+#include <gpio.h>
 
-#define MAILBOX_BASE        (0x3F000000 + 0xB880) // MMIO base address + MAILBOX offset
+#define MAILBOX_BASE        (MMIO_BASE + 0xB880) // MMIO base address + MAILBOX offset
 #define MAILBOX_READ        ((volatile unsigned int*)(MAILBOX_BASE))
 #define MAILBOX_POLL        ((volatile unsigned int*)(MAILBOX_BASE+0x10))
 #define MAILBOX_SENDER      ((volatile unsigned int*)(MAILBOX_BASE+0x14))

@@ -1,6 +1,6 @@
 #include <mailbox.h>
 #include <uart.h>
-
+#include <string.h>
 
 unsigned int get_board_revision(volatile unsigned int mbox[36]){
   mbox[0] = 7 * 4; // buffer size in bytes
@@ -46,15 +46,27 @@ unsigned int mailbox_call(volatile unsigned int mbox[36], unsigned char ch){
   /* wait until we can write to the mailbox */
   while(*MAILBOX_STATUS & MAILBOX_FULL){asm volatile("nop");}
   *MAILBOX_WRITE = req;
+  // char buf3[100];
+  // uitohex(req, buf3);
+  // uart_puts(buf3);
+  // uart_puts("\n");
 
   /* now wait for the response */
   while(1){
 
     /* wait the response signal */
     while(*MAILBOX_STATUS & MAILBOX_EMPTY){asm volatile("nop");}
-    
+
     /* read the response to compare the our req and request_code */
     if(req == *MAILBOX_READ){
+      // char buf1[100];
+      // char buf2[100];
+      // uitohex(req, buf1);
+      // uitohex(*MAILBOX_READ, buf2);
+      // uart_puts(buf1);
+      // uart_puts("\n");
+      // uart_puts(buf2);
+      // uart_puts("\n");
       return mbox[1] == MAILBOX_RESPONSE;
     }
   }
