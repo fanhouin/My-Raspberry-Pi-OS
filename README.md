@@ -13,7 +13,7 @@ make
 ```
 make run
 ```
-## File Tree
+## Directory
 ```
 📦osc2022
  ┣ 📂boot
