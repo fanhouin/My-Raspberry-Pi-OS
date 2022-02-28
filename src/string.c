@@ -38,7 +38,7 @@ int strcmp(const char *p1, const char *p2)
 }
 
 /* string length */
-unsigned int strlen(const char *buf){
+unsigned int strlen(const char buf[MAX_SIZE]){
   unsigned int len;
   for(len = 0; len < MAX_SIZE; len++){
     if(buf[len] == '\0') return(len);
@@ -47,7 +47,7 @@ unsigned int strlen(const char *buf){
 }
 
 /* reverse string */
-void reverse_string(char *buf){
+void reverse_string(char buf[MAX_SIZE]){
   unsigned int len = strlen(buf);
   char tmp;
   for(unsigned int i = 0; i < len/2; i++){
@@ -58,7 +58,7 @@ void reverse_string(char *buf){
 }
 
 /* int to char */
-void itoa(int num, char *buf){
+void itoa(int num, char buf[MAX_SIZE]){
   int i = 0;
   int sign = 0;
   if(num < 0){
@@ -72,3 +72,18 @@ void itoa(int num, char *buf){
   buf[i] = '\0';
   reverse_string(buf);
 }
+
+/* uint to hex string */
+void uitohex(unsigned int d, char buf[MAX_SIZE]){
+  unsigned int i = 0;
+  do{
+    buf[i] = d % 16;
+    if(buf[i] < 10) buf[i] += '0';
+    else buf[i] += 'a' - 10;
+    i++;
+  }while((d /= 16) > 0);
+  buf[i] = '\0';
+  reverse_string(buf);
+}
+
+

@@ -6,3 +6,6 @@ boot/*.o
 *.img
 peda*
 .gdb*
+
+debug
+.vscode
