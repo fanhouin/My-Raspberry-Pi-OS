@@ -72,6 +72,7 @@ void Reboot(){
 
 void ShellLoop(){
   char buf[MAX_SIZE];
+  
   while(1){
     memset(buf, '\0', MAX_SIZE);
     unsigned int size = readline(buf, sizeof(buf));

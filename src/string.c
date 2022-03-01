@@ -90,7 +90,7 @@ void uitohex(unsigned int d, char buf[MAX_SIZE]){
 
 void memcpy(char *d, const char *s, unsigned int len){
   for(unsigned int i = 0; i < len; i++){
-    d[i] = *s;
+    d[i] = s[i];
   }
 }
 
