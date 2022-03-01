@@ -20,4 +20,9 @@ void itoa(int, char *);
 /* uint to string */
 void uitohex(unsigned int, char *);
 
+void memcpy(char *, const char *, unsigned int);
+void memset(char *, const char, unsigned int);
+void strcpy(char *, const char *);
+void strcat(char *, const char *);
+
 #endif 

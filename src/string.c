@@ -59,6 +59,7 @@ void reverse_string(char buf[MAX_SIZE]){
 
 /* int to char */
 void itoa(int num, char buf[MAX_SIZE]){
+  memset(buf, '\0', MAX_SIZE);
   int i = 0;
   int sign = 0;
   if(num < 0){
@@ -75,6 +76,7 @@ void itoa(int num, char buf[MAX_SIZE]){
 
 /* uint to hex string */
 void uitohex(unsigned int d, char buf[MAX_SIZE]){
+  memset(buf, '\0', MAX_SIZE);
   unsigned int i = 0;
   do{
     buf[i] = d % 16;
@@ -86,4 +88,29 @@ void uitohex(unsigned int d, char buf[MAX_SIZE]){
   reverse_string(buf);
 }
 
+void memcpy(char *d, const char *s, unsigned int len){
+  for(unsigned int i = 0; i < len; i++){
+    d[i] = *s;
+  }
+}
 
+
+void memset(char *d, const char s, unsigned int len){
+  for(unsigned int i = 0; i < len; i++){
+    d[i] = s;
+  }
+}
+
+void strcpy(char *d, const char *s){
+  unsigned int len = strlen(s);
+  memcpy(d, s, len);
+  d[len] = '\0';
+}
+
+
+void strcat(char *d, const char *s){
+  unsigned int len = strlen(d);
+  unsigned int slen = strlen(s);
+  memcpy(d + len, s, slen);
+  d[len + slen] = '\0';
+}
