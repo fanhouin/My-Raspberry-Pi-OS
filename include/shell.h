@@ -23,7 +23,7 @@ void Reboot();
 /* read keyboard message until read newline character */
 int readline(char *, int);
 
-/* shell */
+/* Main Shell */
 void ShellLoop();
 
 #endif

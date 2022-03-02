@@ -7,7 +7,7 @@ void uart_init(){
   *AUX_MU_IER     = 0;    // Disable interrupt because currently you don’t need interrupt.
   *AUX_MU_LCR     = 3;    // Set the data size to 8 bit.
   *AUX_MU_MCR     = 0;    // Don’t need auto flow control.
-  *AUX_MU_BAUD    = 270;  // Set baud rate to 115200
+  *AUX_MU_BAUD    = 270;  // Set baud rate and characteristics (115200 8N1) and map to GPIO 
   *AUX_MU_IIR     = 6;    // No FIFO
 
   /* map UART1 to GPIO pins */
@@ -28,7 +28,7 @@ void uart_init(){
   *AUX_MU_CNTL = 3;               // enable Tx, Rx
 }
 
-/* Set baud rate and characteristics (115200 8N1) and map to GPIO */
+/* Display a char */
 void uart_send(unsigned int c){
   /* 
   wait until we can send

@@ -54,7 +54,7 @@ void PrintMemory(char buf[MAX_SIZE]){
     uart_puts(buf);
     uart_puts("\n");
 
-    uart_puts("ARM Memory Base Size: 0x");
+    uart_puts("ARM Memory Size: 0x");
     uitohex(mbox[6], buf);
     uart_puts(buf);
     uart_puts("\n");
@@ -70,6 +70,7 @@ void Reboot(){
   while(1);
 }
 
+/* Main Shell */
 void ShellLoop(){
   char buf[MAX_SIZE];
   

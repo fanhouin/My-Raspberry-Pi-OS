@@ -8,7 +8,7 @@ int readline(char buf[MAX_SIZE], int size){
   char c;
   do{
     c = uart_getc();
-    /* for reboot, it will send non-ascii char, so we need to check it */
+    /* After reboot, rpi3b+ will send non-ascii char, so we need to check it */
     if(c < 0 || c >= 128) continue;
     /* if get newline, then print \r\n and break */
     if(c == '\n'){
@@ -16,7 +16,7 @@ int readline(char buf[MAX_SIZE], int size){
       break;
     } 
     /* check the backspace character */
-    else if(c == '\x7f'){
+    else if(c == '\x7f' || c == '\b'){
       if(idx > 0){
         uart_puts("\b");
         uart_puts(" ");
