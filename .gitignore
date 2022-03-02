@@ -1,3 +1,11 @@
 src/*.elf
-src/*.o
 src/*.img
+src/*.o
+boot/*.o
+*.elf
+*.img
+peda*
+.gdb*
+
+debug
+.vscode
