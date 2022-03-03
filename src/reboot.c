@@ -7,5 +7,5 @@ void reset(int tick) {                 // reboot after watchdog timer expire
 
 void cancel_reset() {
     *PM_RSTC = PM_PASSWORD|0;       // full reset
-    *PM_RSTC = PM_PASSWORD|0;       // number of watchdog tick
+    *PM_WDOG = PM_PASSWORD|0;       // number of watchdog tick
 }
