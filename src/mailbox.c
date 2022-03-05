@@ -44,13 +44,13 @@ unsigned int mailbox_call(volatile unsigned int mbox[36], unsigned char ch){
   /* Combine the message address (upper 28 bits) with channel number (lower 4 bits) */
   unsigned int req = (((unsigned int)((unsigned long)mbox) & (~0xF)) | (ch & 0xF));
   /* wait until we can write to the mailbox */
-  while(*MAILBOX_STATUS & MAILBOX_FULL){asm volatile("nop");}
+  while(*MAILBOX_STATUS1 & MAILBOX_FULL){asm volatile("nop");}
   *MAILBOX_WRITE = req;
 
   /* now wait for the response */
   while(1){
     /* wait the response signal */
-    while(*MAILBOX_STATUS & MAILBOX_EMPTY){asm volatile("nop");}
+    while(*MAILBOX_STATUS0 & MAILBOX_EMPTY){asm volatile("nop");}
 
     /* read the response to compare the our req and request_code */
     if(req == *MAILBOX_READ){

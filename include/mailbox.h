@@ -7,7 +7,8 @@
 #define MAILBOX_READ        ((volatile unsigned int*)(MAILBOX_BASE))
 #define MAILBOX_POLL        ((volatile unsigned int*)(MAILBOX_BASE+0x10))
 #define MAILBOX_SENDER      ((volatile unsigned int*)(MAILBOX_BASE+0x14))
-#define MAILBOX_STATUS      ((volatile unsigned int*)(MAILBOX_BASE+0x18))
+#define MAILBOX_STATUS0     ((volatile unsigned int*)(MAILBOX_BASE+0x18))
+#define MAILBOX_STATUS1     ((volatile unsigned int*)(MAILBOX_BASE+0x38))
 #define MAILBOX_CONFIG      ((volatile unsigned int*)(MAILBOX_BASE+0x1C))
 #define MAILBOX_WRITE       ((volatile unsigned int*)(MAILBOX_BASE+0x20))
 
