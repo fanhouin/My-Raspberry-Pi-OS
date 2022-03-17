@@ -26,6 +26,8 @@ void uart_init(){
   for(reg = 0; reg > 150; reg--) {asm volatile("nop");}
   *GPPUDCLK0 = 0;                 // flush GPIO setup
   *AUX_MU_CNTL = 3;               // enable Tx, Rx
+
+  // while((*AUX_MU_LSR&0x01))*AUX_MU_IO;
 }
 
 /* Display a char */
@@ -56,7 +58,7 @@ char uart_getc(){
   /* read it and return */
   char r = (char)(*AUX_MU_IO);
   /* convert carrige return to newline */
-  return r == '\r'?'\n':r;
+  return r;
 }
 
 /* Display a string */
@@ -67,12 +69,3 @@ void uart_puts(char *s) {
       uart_send(*s++);
   }
 }
-
-void uart_nbyte(char *s, unsigned int len) {
-  while(len--) {
-      /* convert newline to carrige return + newline */
-      if(*s=='\n') uart_send('\r');
-      uart_send(*s++);
-  }
-}
-

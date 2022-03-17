@@ -4,6 +4,12 @@ src/*.o
 boot/*.o
 *.elf
 *.img
+bootloader/*.elf
+bootloader/*.img
+bootloader/src/*.elf
+bootloader/src/*.img
+bootloader/src/*.o
+bootloader/boot/*.o
 peda*
 .gdb*
 

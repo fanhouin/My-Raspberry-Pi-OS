@@ -17,13 +17,16 @@ void PrintRevision(char [MAX_SIZE]);
 /* print memory info*/
 void PrintMemory(char [MAX_SIZE]);
 
+/* uart booting */
+void Bootimg(char [MAX_SIZE]);
+
 /* reboot device */
 void Reboot();
 
-/* read keyboard message until read newline character */
-int readline(char *, int);
-
 /* Main Shell */
 void ShellLoop();
+
+void Ls();
+void Cat(char [MAX_SIZE]);
 
 #endif

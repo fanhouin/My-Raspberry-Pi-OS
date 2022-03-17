@@ -1,13 +1,12 @@
 #ifndef STRING_H_
 #define STRING_H_
 
-#define MAX_SIZE 10000
+#define MAX_SIZE 1024
 
 /* Compare S1 and S2, returning less than, equal to or
    greater than zero if S1 is lexicographically less than,
    equal to or greater than S2.  */
 int strcmp(const char *, const char *);
-int strncmp(const char *, const char *, unsigned int);
 
 /* string length */
 unsigned int strlen(const char *);
@@ -16,16 +15,13 @@ unsigned int strlen(const char *);
 void reverse_buf(char *);
 
 /* int to string */
-void itoa(char *, int);
+void itoa(int, char *);
 
 /* uint to string */
-void uitohex(char *, unsigned int);
+void uitohex(unsigned int, char *);
 
 /* array to int */
 int atoi(const char *);
-
-/* hex string to unsigned int */
-unsigned int hextoui(const char *, unsigned int);
 
 void memcpy(char *, const char *, unsigned int);
 void memset(char *, const char, unsigned int);

@@ -37,23 +37,6 @@ int strcmp(const char *p1, const char *p2)
   return c1 - c2;
 }
 
-int strncmp(const char *p1, const char *p2, unsigned int n)
-{
-  const unsigned char *s1 = (const unsigned char *) p1;
-  const unsigned char *s2 = (const unsigned char *) p2;
-  unsigned char c1, c2;
-
-  if (n <= 0) return 0;
-  while(n--){
-    c1 = (unsigned char) *s1++;
-    c2 = (unsigned char) *s2++;
-    if (c1 == '\0' || c1 != c2)
-      return c1 - c2;
-  }
-
-  return c1 - c2;
-}
-
 /* string length */
 unsigned int strlen(const char buf[MAX_SIZE]){
   unsigned int len;
@@ -75,7 +58,8 @@ void reverse_string(char buf[MAX_SIZE]){
 }
 
 /* int to char */
-void itoa(char buf[MAX_SIZE], int num){
+void itoa(int num, char buf[MAX_SIZE]){
+  memset(buf, '\0', MAX_SIZE);
   int i = 0;
   int sign = 0;
   if(num < 0){
@@ -91,12 +75,13 @@ void itoa(char buf[MAX_SIZE], int num){
 }
 
 /* uint to hex string */
-void uitohex(char buf[MAX_SIZE], unsigned int d){
+void uitohex(unsigned int d, char buf[MAX_SIZE]){
+  memset(buf, '\0', MAX_SIZE);
   unsigned int i = 0;
   do{
     buf[i] = d % 16;
     if(buf[i] < 10) buf[i] += '0';
-    else buf[i] += 'a' - 10;
+    else buf[i] += 'A' - 10;
     i++;
   }while((d /= 16) > 0);
   buf[i] = '\0';
@@ -115,23 +100,6 @@ int atoi(const char buf[MAX_SIZE]){
     num = num * 10 + (buf[i] - '0');
   }
   return num * sign;
-}
-
-/* hex string to unsigned int */
-unsigned int hextoui(const char buf[MAX_SIZE], unsigned int size){
-  unsigned int num = 0;
-  for(unsigned int i = 0; i < size; i++){
-    if(buf[i] >= '0' && buf[i] <= '9'){
-      num = num * 16 + (buf[i] - '0');
-    }
-    else if(buf[i] >= 'A' && buf[i] <= 'F'){
-      num = num * 16 + (buf[i] - 'A' + 10);
-    }
-    else if(buf[i] >= 'a' && buf[i] <= 'f'){
-      num = num * 16 + (buf[i] - 'a' + 10);
-    }
-  }
-  return num;
 }
 
 void memcpy(char *d, const char *s, unsigned int len){
