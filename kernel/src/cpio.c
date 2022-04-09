@@ -1,16 +1,8 @@
 #include <cpio.h>
 #include <uart.h>
 #include <string.h>
-
-
-// void testprint(){
-//     // char buf[MAX_SIZE];
-//     char *place = (char *)CPIO_BASE;
-//     for(int i = 0; i < 500; i++){
-//         uart_send(place[i]);
-//     }
-//     // uart_puts(place); 
-// }
+#include <malloc.h>
+#include <irq.h>
 
 /*
 The pathname is followed by NUL bytes so that the total size of the fixed
@@ -40,10 +32,9 @@ void ls() {
         parse_cpio_header(header, &info);
         if(strncmp(info.filename, "TRAILER!!!", 10) == 0) break;
         uart_nbyte(info.filename, info.filename_size);
-        uart_puts("\t");
+        uart_puts("\n");
         header = (cpio_newc_header *)(info.data + padding(info.datasize));
     }
-    uart_puts("\n");
 }
 
 
@@ -54,7 +45,7 @@ void cat(char *thefilename) {
         parse_cpio_header(header, &info);
 
         if(strncmp(info.filename, "TRAILER!!!", 10) == 0) break;
-        else if(strncmp(info.filename, thefilename, strlen(thefilename)) == 0){
+        else if(strncmp(info.filename, thefilename, info.filename_size) == 0){
             uart_nbyte(info.data, info.datasize);
             uart_puts("\n");
             return;
@@ -65,6 +56,37 @@ void cat(char *thefilename) {
 }
 
 
+unsigned long findDataAddr(char *thefilename) {
+    cpio_newc_header *header = (cpio_newc_header *)CPIO_BASE;
+    while(1){
+        file_info info;
+        parse_cpio_header(header, &info);
+
+        if(strncmp(info.filename, "TRAILER!!!", 10) == 0) break;
+        else if(strncmp(info.filename, thefilename, info.filename_size) == 0){
+            return (unsigned long)info.data;
+        }
+
+        header = (cpio_newc_header *)(info.data + padding(info.datasize));
+    }
+    return 0;
+}
+
+void run(unsigned long runAddr){
+    unsigned long *user_stack = (unsigned long*)simple_malloc(0x1000);
+    set_period_timer_irq();
+    asm volatile(
+        "mov x0, 0x0\n\t"
+        "msr spsr_el1, x0\n\t"
+        "msr elr_el1, %0\n\t"
+        "msr sp_el0, %1\n\t"
+        "eret\n\t"
+        ::"r"(runAddr), 
+        "r"(user_stack)
+        : "x0"
+    );
+    uart_puts("run done\n"); 
+}
 
 
 

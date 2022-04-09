@@ -4,34 +4,42 @@
 |---|---|---|
 |fanhouin|310552001|樊浩賢|
 
-## Build
-### Make kernel image
+## Run with QEMU
+### Prerequisites
+```bash
+sudo apt-get install gcc-aarch64-linux-gnu
+sudo apt-get install qemu-system-aarch64
 ```
-> make
+### Make kernel image
+```bash
+cd kernel
+make
 ```
 
 ### Make bootloader image
-```
-> cd bootloader
-> make
+```bash
+cd bootloader
+make
 ```
 
 ## Run
 ###  Just run kernel image
-```
-> make run
+```bash
+cd kernel
+make run
 ```
 ### Boot kernel image with bootloader
-```
-/* terminal 1 */
-> cd bootloader
-> make pty
+```bash
+# terminal 1
+cd bootloader
+make pty
 
-/* terminal 2 */
-> sudo screen /dev/pts/<num> 115200
+# terminal 2
+sudo screen /dev/pts/<num> 115200
 
-/* terminal 3 */
-> sudo ./uartboot.py <num>
+# terminal 3 
+cd kernel
+sudo ../uartboot.py <num>
 ```
 ## Directory
 ```
@@ -53,39 +61,51 @@
  ┃ ┣ 📜Makefile
  ┃ ┣ 📜bcm2710-rpi-3-b-plus.dtb
  ┃ ┗ 📜initramfs.cpio
- ┣ 📂boot
- ┃ ┣ 📜linker.ld
- ┃ ┗ 📜start.S
- ┣ 📂include
- ┃ ┣ 📜cpio.h
- ┃ ┣ 📜fdt.h
- ┃ ┣ 📜gpio.h
- ┃ ┣ 📜mailbox.h
- ┃ ┣ 📜malloc.h
- ┃ ┣ 📜read.h
- ┃ ┣ 📜reboot.h
- ┃ ┣ 📜shell.h
- ┃ ┣ 📜stdint.h
- ┃ ┣ 📜string.h
- ┃ ┗ 📜uart.h
- ┣ 📂rootfs
- ┃ ┣ 📜me
- ┃ ┣ 📜test1
- ┃ ┣ 📜test2.txt
- ┃ ┗ 📜test3.cc
- ┣ 📂src
- ┃ ┣ 📜cpio.c
- ┃ ┣ 📜fdt.c
- ┃ ┣ 📜mailbox.c
- ┃ ┣ 📜main.c
- ┃ ┣ 📜malloc.c
- ┃ ┣ 📜read.c
- ┃ ┣ 📜reboot.c
- ┃ ┣ 📜shell.c
- ┃ ┣ 📜string.c
- ┃ ┗ 📜uart.cS
- ┣ 📜bcm2710-rpi-3-b-plus.dtb
+ ┣ 📂kernel
+ ┃ ┣ 📂boot
+ ┃ ┃ ┣ 📜linker.ld
+ ┃ ┃ ┗ 📜start.S
+ ┃ ┣ 📂include
+ ┃ ┃ ┣ 📜cpio.h
+ ┃ ┃ ┣ 📜exc.h
+ ┃ ┃ ┣ 📜fdt.h
+ ┃ ┃ ┣ 📜gpio.h
+ ┃ ┃ ┣ 📜irq.h
+ ┃ ┃ ┣ 📜mailbox.h
+ ┃ ┃ ┣ 📜malloc.h
+ ┃ ┃ ┣ 📜read.h
+ ┃ ┃ ┣ 📜reboot.h
+ ┃ ┃ ┣ 📜shell.h
+ ┃ ┃ ┣ 📜stdint.h
+ ┃ ┃ ┣ 📜string.h
+ ┃ ┃ ┣ 📜task.h
+ ┃ ┃ ┣ 📜timer.h
+ ┃ ┃ ┗ 📜uart.h
+ ┃ ┣ 📂initramfs
+ ┃ ┃ ┣ 📜me
+ ┃ ┃ ┣ 📜test1
+ ┃ ┃ ┣ 📜test2.txt
+ ┃ ┃ ┣ 📜test3.cc
+ ┃ ┃ ┣ 📜user.S
+ ┃ ┃ ┗ 📜user.img
+ ┃ ┣ 📂src
+ ┃ ┃ ┣ 📜cpio.c
+ ┃ ┃ ┣ 📜exc.c
+ ┃ ┃ ┣ 📜fdt.c
+ ┃ ┃ ┣ 📜irq.c
+ ┃ ┃ ┣ 📜mailbox.c
+ ┃ ┃ ┣ 📜main.c
+ ┃ ┃ ┣ 📜malloc.c
+ ┃ ┃ ┣ 📜read.c
+ ┃ ┃ ┣ 📜reboot.c
+ ┃ ┃ ┣ 📜shell.c
+ ┃ ┃ ┣ 📜string.c
+ ┃ ┃ ┣ 📜task.c
+ ┃ ┃ ┣ 📜timer.c
+ ┃ ┃ ┗ 📜uart.c
+ ┃ ┣ 📜Makefile
+ ┃ ┣ 📜bcm2710-rpi-3-b-plus.dtb
+ ┃ ┗ 📜initramfs.cpio
  ┣ 📜config.txt
- ┣ 📜initramfs.cpio
  ┗ 📜uartboot.py
 ```

@@ -17,7 +17,7 @@ void reverse_buf(char *);
 /* int to string */
 void itoa(int, char *);
 
-/* uint to string */
+/* uint to hex string */
 void uitohex(unsigned int, char *);
 
 /* array to int */

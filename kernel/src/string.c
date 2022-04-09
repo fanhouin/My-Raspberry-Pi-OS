@@ -74,7 +74,7 @@ void reverse_string(char buf[MAX_SIZE]){
   }
 }
 
-/* int to char */
+/* int to string */
 void itoa(char buf[MAX_SIZE], int num){
   int i = 0;
   int sign = 0;
@@ -86,6 +86,16 @@ void itoa(char buf[MAX_SIZE], int num){
     buf[i++] = num % 10 + '0';
   }while((num /= 10) > 0);
   if(sign) buf[i++] = '-';
+  buf[i] = '\0';
+  reverse_string(buf);
+}
+
+/* uint to string */
+void uitoa(char buf[MAX_SIZE], int num){
+  unsigned int i = 0;
+  do{
+    buf[i++] = num % 10 + '0';
+  }while((num /= 10) > 0);
   buf[i] = '\0';
   reverse_string(buf);
 }
@@ -115,6 +125,15 @@ int atoi(const char buf[MAX_SIZE]){
     num = num * 10 + (buf[i] - '0');
   }
   return num * sign;
+}
+
+/* array to uint */
+unsigned int atoui(const char buf[MAX_SIZE]){
+  unsigned int num = 0;
+  for(unsigned int i = 0; i < strlen(buf); i++){
+    num = num * 10 + (buf[i] - '0');
+  }
+  return num;
 }
 
 /* hex string to unsigned int */
@@ -159,4 +178,11 @@ void strcat(char *d, const char *s){
   unsigned int slen = strlen(s);
   memcpy(d + len, s, slen);
   d[len + slen] = '\0';
+}
+
+char *strchr(const char *str, int c){
+  for(unsigned int i = 0; i < strlen(str); i++){
+    if(str[i] == c) return (char *)(str + i);
+  }
+  return 0;
 }

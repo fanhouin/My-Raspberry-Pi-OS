@@ -41,8 +41,9 @@ void testprint();
 unsigned int padding(unsigned int);
 void ls();
 void cat(char [MAX_SIZE]);
+void run(unsigned long);
+unsigned long findDataAddr(char [MAX_SIZE]);
 void parse_cpio_header(cpio_newc_header *, file_info *);
-
 
 
 #endif

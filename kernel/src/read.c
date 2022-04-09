@@ -7,26 +7,26 @@ int readline(char buf[MAX_SIZE], int size){
   unsigned int idx = 0;
   char c;
   do{
-    c = uart_getc();
+    c = async_uart_getc();
     /* After reboot, rpi3b+ will send non-ascii char, so we need to check it */
     if(c < 0 || c >= 128) continue;
     /* if get newline, then print \r\n and break */
     if(c == '\n'){
-      uart_puts("\n");
+      async_uart_putc('\n');
       break;
     } 
     /* check the backspace character */
     else if(c == '\x7f' || c == '\b'){
       if(idx > 0){
-        uart_puts("\b");
-        uart_puts(" ");
-        uart_puts("\b");
+        async_uart_putc('\b');
+        async_uart_putc(' ');
+        async_uart_putc('\b');
         idx--;
       }
     }
     /* otherwise, print and save the character */
     else{
-      uart_send(c); // need to recv the echo back
+      async_uart_putc(c); // need to recv the echo back
       if( idx < size){
         buf[idx++] = c;
       }

@@ -7,8 +7,8 @@ if(len(sys.argv) != 2):
     print("Usage: ./uartboot.py <serial>")
     exit(1)
 
-port = '/dev/pts/' + sys.argv[1]
-# port = '/dev/ttyUSB0'
+# port = '/dev/pts/' + sys.argv[1]
+port = '/dev/ttyUSB0'
 baudrate = 115200
 
 ser = serial.Serial(port, baudrate)

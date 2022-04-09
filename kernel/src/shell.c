@@ -5,6 +5,8 @@
 #include <reboot.h>
 #include <read.h>
 #include <cpio.h>
+#include <timer.h>
+#include <malloc.h>
 
 /* print welcome message*/
 void PrintWelcome(){
@@ -17,13 +19,15 @@ void PrintWelcome(){
 /* print help message*/
 void PrintHelp(){
   uart_puts("-------------------------- Help Message --------------------------\n");
-  uart_puts("help     : print this help menu\n");
-  uart_puts("hello    : print Hello World!\n");
-  uart_puts("revision : print board_revision\n");
-  uart_puts("memory   : print memory info\n");
-  uart_puts("reboot   : reboot the device\n");
-  uart_puts("ls       : list directory contents\n");
-  uart_puts("cat      : concatenate files and print on the standard output\n");
+  uart_puts("help         : print this help menu\n");
+  uart_puts("hello        : print Hello World!\n");
+  uart_puts("revision     : print board_revision\n");
+  uart_puts("memory       : print memory info\n");
+  uart_puts("reboot       : reboot the device\n");
+  uart_puts("ls           : list directory contents\n");
+  uart_puts("cat          : concatenate files and print on the standard output\n");
+  uart_puts("setTimeout   : set timeout for read\n");
+  uart_puts("test_timeout : test timeout for read\n");
 }
 
 /* print unknown command message*/
@@ -96,17 +100,61 @@ void Cat(char buf[MAX_SIZE]){
   uart_puts("Filename: ");
   unsigned int size = readline(buf, MAX_SIZE);
   if (size == 0){
-    // uart_puts("\n");
     return;
   }
   cat(buf);
 }
 
+void Run(char buf[MAX_SIZE]){
+  uart_puts("Filename: ");
+  unsigned int size = readline(buf, MAX_SIZE);
+  if (size == 0){
+    return;
+  }
+  unsigned long fileDataAddr = findDataAddr(buf);
+  uitohex(buf, (unsigned int)fileDataAddr);
+  if(!fileDataAddr){
+    uart_puts("[x] Failed to find file data address\n");
+    return;
+  }
+
+  uart_puts("[*] File data address: 0x");
+  uart_puts(buf);
+  uart_puts("\n");
+  run(fileDataAddr);
+}
+
+void SetTimeOut(char buf[MAX_SIZE]){
+  char *message_tmp = strchr(buf, ' ') + 1;
+  char *end_message = strchr(message_tmp, ' ');
+  *end_message = '\0';
+  char *message = (char *)simple_malloc(strlen(message_tmp) + 1);
+  strcpy(message, message_tmp);
+  unsigned int timeout = atoui(end_message + 1);
+
+  add_timer(timeout_print, timeout, message);
+}
+
+void TestTimeOut(char buf[MAX_SIZE]){
+  add_timer(timeout_print, 2, "[*] timeout: 2\n");
+  add_timer(timeout_print, 1, "[*] timeout: 1\n");
+  add_timer(timeout_print, 5, "[*] timeout: 5\n");
+  add_timer(timeout_print, 4, "[*] timeout: 4\n");
+  add_timer(timeout_print, 3, "[*] timeout: 3\n");
+  add_timer(timeout_print, 2, "[*] timeout: 2.1\n"); // test short expired time
+  add_timer(timeout_print, 9, "[*] timeout: 9\n");
+  add_timer(timeout_print, 7, "[*] timeout: 7\n");
+  add_timer(timeout_print, 6, "[*] timeout: 6\n");
+  add_timer(timeout_print, 8, "[*] timeout: 8\n");
+
+}
+
 /* Main Shell */
 void ShellLoop(){
   char buf[MAX_SIZE];
-  
+
   while(1){
+
     memset(buf, '\0', MAX_SIZE);
     unsigned int size = readline(buf, sizeof(buf));
     if (size == 0){
@@ -121,6 +169,9 @@ void ShellLoop(){
     else if(strcmp("bootimg", buf) == 0) Bootimg(buf);
     else if(strcmp("ls", buf) == 0) Ls();
     else if(strcmp("cat", buf) == 0) Cat(buf);
+    else if(strcmp("run", buf) == 0) Run(buf);
+    else if(strncmp("setTimeout", buf, strlen("setTimeout")) == 0) SetTimeOut(buf);
+    else if(strcmp("test_timeout", buf) == 0) TestTimeOut(buf);
     else PrintUnknown(buf);
 
     uart_puts("# ");
