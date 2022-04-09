@@ -12,7 +12,7 @@ int readline(char buf[MAX_SIZE], int size){
     if(c < 0 || c >= 128) continue;
     /* if get newline, then print \r\n and break */
     if(c == '\n'){
-      async_uart_putc('\n');
+      uart_puts("\n");
       break;
     } 
     /* check the backspace character */
