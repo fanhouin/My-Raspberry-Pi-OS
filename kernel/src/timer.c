@@ -84,6 +84,13 @@ void timer_interrupt_handler(){
     enable_timer_irq();
 }
 
+void timer_interrupt_handler_el0(){
+    head = NULL;
+    uart_puts("Time interrupt\n");
+    set_period_timer_irq();
+    enable_timer_irq();
+}
+
 void timeout_print(void *args){
     uart_puts((char*)args);
 }

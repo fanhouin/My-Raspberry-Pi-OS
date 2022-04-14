@@ -45,8 +45,10 @@ void add_task(Handler handler, unsigned int priority){
 
 
 void do_task(){
+    // int first = 1;
     // for(Task *tmp = task_head; tmp != NULL; tmp = tmp->next){
-    //     uart_sputs("->");
+    //     if(first) {uart_sputs("    :"); first = 0;}
+    //     else uart_sputs("->");
     //     if(tmp->priority == 1) uart_sputs("time");
     //     else uart_sputs("uart");
     // }
