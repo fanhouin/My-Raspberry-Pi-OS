@@ -16,6 +16,8 @@
    <https://www.gnu.org/licenses/>.  */
 
 #include <string.h>
+#include <uart.h>
+
 
 /* Compare S1 and S2, returning less than, equal to or
    greater than zero if S1 is lexicographically less than,
@@ -91,7 +93,7 @@ void itoa(char buf[MAX_SIZE], int num){
 }
 
 /* uint to string */
-void uitoa(char buf[MAX_SIZE], int num){
+void uitoa(char buf[MAX_SIZE], unsigned int num){
   unsigned int i = 0;
   do{
     buf[i++] = num % 10 + '0';
@@ -111,6 +113,28 @@ void uitohex(char buf[MAX_SIZE], unsigned int d){
   }while((d /= 16) > 0);
   buf[i] = '\0';
   reverse_string(buf);
+}
+
+void print_string(enum print_type type, char *text , unsigned long long num, int println){
+  char buf[20];
+  switch(type){
+    case UITOHEX:
+      uart_puts(text);
+      uitohex(buf, (unsigned int)num);
+      uart_puts(buf);
+      break;
+    case UITOA:
+      uart_puts(text);
+      uitoa(buf, (unsigned int)num);
+      uart_puts(buf);
+      break;
+    case ITOA:
+      uart_puts(text);
+      itoa(buf, (int)num);
+      uart_puts(buf);
+      break;
+  }
+  if(println) uart_puts("\n");
 }
 
 /* array to int */

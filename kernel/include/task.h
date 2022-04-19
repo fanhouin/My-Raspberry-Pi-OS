@@ -1,6 +1,6 @@
 #ifndef	TASK_H_
 #define TASK_H_
-#define NULL 0x0
+#include <stddef.h>
 
 typedef void (*Handler)();
 

@@ -3,7 +3,8 @@
 
 #include <string.h>
 // #define CPIO_BASE   ((volatile unsigned long*)(0x8000000))
-unsigned long CPIO_BASE;
+unsigned long long CPIO_BASE_START;
+unsigned long long CPIO_BASE_END;
 
 /* Magic identifiers for the "cpio" file format. */
 #define CPIO_HEADER_MAGIC "070701"

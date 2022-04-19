@@ -66,16 +66,20 @@ sudo ../uartboot.py <num>
  ┃ ┃ ┣ 📜linker.ld
  ┃ ┃ ┗ 📜start.S
  ┃ ┣ 📂include
+ ┃ ┃ ┣ 📜allocator.h
  ┃ ┃ ┣ 📜cpio.h
  ┃ ┃ ┣ 📜exc.h
  ┃ ┃ ┣ 📜fdt.h
  ┃ ┃ ┣ 📜gpio.h
  ┃ ┃ ┣ 📜irq.h
+ ┃ ┃ ┣ 📜list.h
  ┃ ┃ ┣ 📜mailbox.h
  ┃ ┃ ┣ 📜malloc.h
+ ┃ ┃ ┣ 📜math.h
  ┃ ┃ ┣ 📜read.h
  ┃ ┃ ┣ 📜reboot.h
  ┃ ┃ ┣ 📜shell.h
+ ┃ ┃ ┣ 📜stddef.h
  ┃ ┃ ┣ 📜stdint.h
  ┃ ┃ ┣ 📜string.h
  ┃ ┃ ┣ 📜task.h
@@ -86,9 +90,9 @@ sudo ../uartboot.py <num>
  ┃ ┃ ┣ 📜test1
  ┃ ┃ ┣ 📜test2.txt
  ┃ ┃ ┣ 📜test3.cc
- ┃ ┃ ┣ 📜user.S
- ┃ ┃ ┗ 📜user.img
+ ┃ ┃ ┗ 📜user.S
  ┃ ┣ 📂src
+ ┃ ┃ ┣ 📜allocator.c
  ┃ ┃ ┣ 📜cpio.c
  ┃ ┃ ┣ 📜exc.c
  ┃ ┃ ┣ 📜fdt.c
@@ -96,6 +100,7 @@ sudo ../uartboot.py <num>
  ┃ ┃ ┣ 📜mailbox.c
  ┃ ┃ ┣ 📜main.c
  ┃ ┃ ┣ 📜malloc.c
+ ┃ ┃ ┣ 📜math.c
  ┃ ┃ ┣ 📜read.c
  ┃ ┃ ┣ 📜reboot.c
  ┃ ┃ ┣ 📜shell.c

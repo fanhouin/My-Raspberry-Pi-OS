@@ -5,13 +5,9 @@ src/*.img
 src/*.o
 boot/*.o
 
-
 kernel/*.elf
 kernel/*.img
-kernel/src/*.elf
-kernel/src/*.img
-kernel/src/*.o
-kernel/boot/*.o
+kernel/build/*
 
 bootloader/*.elf
 bootloader/*.img

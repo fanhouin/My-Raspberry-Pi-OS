@@ -7,7 +7,8 @@
 unsigned int curr_poriority = 100;
 Task *task_head = NULL;
 void add_task(Handler handler, unsigned int priority){
-    Task *task = (Task*)simple_malloc(sizeof(Task));
+    Task *task = (Task*)kmalloc(sizeof(Task));
+    memset((char *)task, 0, sizeof(Task));
     task->handler = handler;
     task->priority = priority;
     task->next = NULL;
@@ -88,8 +89,10 @@ void do_task(){
         disable_irq();
 
         // new_task should be the low priority task / me / null
+        Task *tmp = task_head;
         task_head = task_head->next;
-
+        kfree(tmp);
+        tmp = NULL;
         /*
         ** if prev_poriority(curr_poriority now) is highest priority task
         ** it means the prev_task need to be continued to finish the task.

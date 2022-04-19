@@ -39,7 +39,7 @@ _start:
 
 // save general registers to stack
 .macro save_all
-    sub sp, sp, 33 * 8
+    sub sp, sp, 32 * 9
     stp x0, x1, [sp ,16 * 0]
     stp x2, x3, [sp ,16 * 1]
     stp x4, x5, [sp ,16 * 2]
@@ -85,7 +85,7 @@ _start:
     ldp x28, x29, [sp ,16 * 14]
     ldr x30, [sp, 16 * 15]
 
-    add sp, sp, 33 * 8
+    add sp, sp, 32 * 9
 .endm
 
 sync_exception_entry:
@@ -122,7 +122,7 @@ exception_vector_table:
     b fail
     .align 7
 
-    b fail
+    b sync_exception_entry
     .align 7
     b irq_entry
     .align 7

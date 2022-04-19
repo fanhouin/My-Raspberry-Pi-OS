@@ -2,6 +2,7 @@
 #define TIMER_H_
 
 #include <gpio.h>
+#include <stddef.h>
 
 // Timer interrupt
 #define TIMER_CS        ((volatile unsigned int*)(MMIO_BASE+0x00003000))
@@ -17,7 +18,6 @@
 #define TIMER_CS_M2	(1 << 2)
 #define TIMER_CS_M3	(1 << 3)
 
-#define NULL 0x0
 
 typedef void (*TimerTask)(void *);
 
@@ -32,5 +32,6 @@ typedef struct _Timer{
 void add_timer(TimerTask, unsigned long long, void *);
 void timeout_print(void *);
 void timer_interrupt_handler();
+void timer_interrupt_handler_el0();
 
 #endif

@@ -1,6 +1,6 @@
 #ifndef FDT_H_
 #define FDT_H_
-#define uint32_t unsigned int
+#include <stddef.h>
 
 #define FDT_MAGIC       0xd00dfeed
 #define FDT_BEGIN_NODE  0x00000001

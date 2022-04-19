@@ -2,7 +2,9 @@
 #include <fdt.h>
 #include <cpio.h>
 
-extern unsigned long CPIO_BASE;
+extern unsigned long long CPIO_BASE_START;
+extern unsigned long long CPIO_BASE_END;
+
 
 uint32_t big_to_little(uint32_t big){
     uint32_t little = 0;
@@ -25,12 +27,12 @@ uint32_t big_to_little(uint32_t big){
 void initramfs_callback(char * prop_name, uint32_t token_type, uint32_t len, uint32_t *struct_addr){
     if(token_type == FDT_PROP){
         if(strcmp("linux,initrd-start", prop_name) == 0){
-            char buf[15];
-            CPIO_BASE = (unsigned long)big_to_little(*(struct_addr+2));
-            uart_puts("[*] CPIO_BASE: 0x");
-            uitohex(buf, (unsigned int)(CPIO_BASE));
-            uart_puts(buf);
-            uart_puts("\n");
+            CPIO_BASE_START = (unsigned long long)big_to_little(*(struct_addr+2));
+            print_string(UITOHEX, "[*] CPIO_BASE_START: 0x", CPIO_BASE_START, 1);
+        }
+        else if(strcmp("linux,initrd-end", prop_name) == 0){
+            CPIO_BASE_END = (unsigned long)big_to_little(*(struct_addr+2));
+            print_string(UITOHEX, "[*] CPIO_BASE_END: 0x", CPIO_BASE_END, 1);
         }
     }
 }

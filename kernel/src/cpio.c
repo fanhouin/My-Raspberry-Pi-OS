@@ -26,7 +26,7 @@ void parse_cpio_header(cpio_newc_header *header, file_info *info){
 }
 
 void ls() {
-    cpio_newc_header *header = (cpio_newc_header *)CPIO_BASE;
+    cpio_newc_header *header = (cpio_newc_header *)CPIO_BASE_START;
     while(1){
         file_info info;
         parse_cpio_header(header, &info);
@@ -39,7 +39,7 @@ void ls() {
 
 
 void cat(char *thefilename) {
-    cpio_newc_header *header = (cpio_newc_header *)CPIO_BASE;
+    cpio_newc_header *header = (cpio_newc_header *)CPIO_BASE_START;
     while(1){
         file_info info;
         parse_cpio_header(header, &info);
@@ -57,7 +57,7 @@ void cat(char *thefilename) {
 
 
 unsigned long findDataAddr(char *thefilename) {
-    cpio_newc_header *header = (cpio_newc_header *)CPIO_BASE;
+    cpio_newc_header *header = (cpio_newc_header *)CPIO_BASE_START;
     while(1){
         file_info info;
         parse_cpio_header(header, &info);

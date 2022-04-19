@@ -3,6 +3,9 @@
 
 #include <string.h>
 
+/* async scan the input until get \r */
+int async_readline(char [MAX_SIZE], int);
+
 /* scan the input until get \r */
 int readline(char [MAX_SIZE], int);
 

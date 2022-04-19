@@ -3,28 +3,32 @@ LD = aarch64-linux-gnu-ld
 OBJCOPY = aarch64-linux-gnu-objcopy
 INCLUDE = -I ./include/
 
+SRC_DIR = src
+BUILD_DIR = build
+BOOT_DIR = boot
+
 SFILES = $(wildcard src/*.c)
-OFILES = $(patsubst %.c, %.o, $(SFILES)) # OFILES = $(SFILES:.c=.o)
+OFILES = $(patsubst src/%.c, build/%.o, $(SFILES)) # OFILES = $(SFILES:.c=.o)
 BOOTFILES = $(wildcard boot/*.S)
-BOOTOFILES = $(patsubst %.S, %.o, $(BOOTFILES)) # BOOTOFILES = $(BOOTFILES:.S=.o)
+BOOTOFILES = $(patsubst boot/%.S, build/%.o, $(BOOTFILES)) # BOOTOFILES = $(BOOTFILES:.S=.o)
 ALLOFILES = $(OFILES) $(BOOTOFILES)
 
 CFLAGS = -Wall -O2 -ffreestanding -nostdinc -nostdlib -nostartfiles
 
 all: clean kernel8.img run
 
-%.o: %.S
-	$(CC) $(CFLAGS) $(INCLUDE) -c $< -o $@ 
+$(BUILD_DIR)/%.o: $(BOOT_DIR)/%.S
+	$(CC) $(CFLAGS) $(INCLUDE) -c $< -o $@ -g 
 
-%.o: %.c
-	$(CC) $(CFLAGS)	$(INCLUDE) -c $< -o $@
+$(BUILD_DIR)/%.o: $(SRC_DIR)/%.c
+	$(CC) $(CFLAGS)	$(INCLUDE) -c $< -o $@ -g 
 
 kernel8.img: $(ALLOFILES)
 	$(LD) -nostdlib -nostartfiles  $(ALLOFILES) -T boot/linker.ld -o kernel8.elf
 	$(OBJCOPY) -O binary kernel8.elf kernel8.img
 
 clean:
-	rm *.elf *.img src/*.o boot/*.o >/dev/null 2>/dev/null || true
+	rm *.elf *.img build/* >/dev/null 2>/dev/null || true
 
 run: 
 	qemu-system-aarch64 -M raspi3 -kernel kernel8.img -display none -s -serial null -serial stdio -initrd initramfs.cpio -dtb bcm2710-rpi-3-b-plus.dtb

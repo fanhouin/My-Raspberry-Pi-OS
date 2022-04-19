@@ -34,9 +34,12 @@ char async_uart_getc();
 /* Display a string */
 void uart_puts(char*);
 
-void uart_sputs(char*);
+/* Async display a string */
+void async_uart_puts(char *);
+
 /* Transmit a character */
 void tran_interrupt_handler();
+
 /* Async send a character */
 void async_uart_putc(unsigned int);
 

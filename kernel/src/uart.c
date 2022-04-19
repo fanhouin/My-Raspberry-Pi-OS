@@ -52,7 +52,7 @@ char uart_getc(){
   read. To do a non-destructive read of this overrun bit
   use the Mini Uart Extra Status register. 
   */
-  // while(!(*AUX_MU_LSR & 0x01)) {asm volatile("nop");}
+  while(!(*AUX_MU_LSR & 0x01)) {asm volatile("nop");}
   /* read it and return */
   char r = (char)(*AUX_MU_IO);
   /* convert carrige return to newline */
@@ -133,16 +133,16 @@ void async_uart_putc(unsigned int c){
   enable_AUX_MU_IER_w();
 }
 
-
-/* Display a string */
-void uart_puts(char *s) {
+/* Async display a string */
+void async_uart_puts(char *s) {
   while(*s) async_uart_putc(*s++);
   /* convert newline to carrige return + newline */
   if(*(--s)=='\n') async_uart_putc('\r');
   
 }
 
-void uart_sputs(char *s) {
+/* Display a string */
+void uart_puts(char *s) {
   while(*s) uart_putc(*s++);
   /* convert newline to carrige return + newline */
   if(*(--s)=='\n') uart_putc('\r');

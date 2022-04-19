@@ -16,8 +16,9 @@ void Time_interrupt(unsigned long long spsr){
     asm volatile("mrs %0, cntfrq_el0\n\t" :"=r"(frq));
     spsr &= 0b1111;
     if(spsr == 0x0){
-        uart_puts("Time interrupt\n");
-        set_period_timer_irq();
+        disable_timer_irq();
+        add_task(timer_interrupt_handler_el0, 1);
+        do_task();
     }
     else{
         disable_timer_irq();

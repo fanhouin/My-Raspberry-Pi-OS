@@ -3,6 +3,13 @@
 
 #define MAX_SIZE 512
 
+
+enum print_type{
+    UITOHEX,
+    UITOA,
+    ITOA
+};
+
 /* Compare S1 and S2, returning less than, equal to or
    greater than zero if S1 is lexicographically less than,
    equal to or greater than S2.  */
@@ -19,10 +26,11 @@ void reverse_buf(char *);
 void itoa(char *, int);
 
 /* uint to string */
-void uitoa(char *, int);
+void uitoa(char *, unsigned int);
 
 /* uint to hex string */
 void uitohex(char *, unsigned int);
+void print_string(enum print_type type, char *text , unsigned long long num, int println);
 
 /* array to int */
 int atoi(const char *);
