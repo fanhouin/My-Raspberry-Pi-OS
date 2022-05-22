@@ -2,7 +2,7 @@
 #include <uart.h>
 #include <string.h>
 
-unsigned int get_board_revision(volatile unsigned int mbox[36]){
+unsigned int get_board_revision(unsigned int mbox[36]){
   mbox[0] = 7 * 4; // buffer size in bytes
   mbox[1] = REQUEST_CODE;
   // tags begin
@@ -16,7 +16,7 @@ unsigned int get_board_revision(volatile unsigned int mbox[36]){
   return mailbox_call(mbox, MAILBOX_CH_PROP); 
 }
 
-unsigned int get_arm_memory(volatile unsigned int mbox[36]){
+unsigned int get_arm_memory(unsigned int mbox[36]){
   mbox[0] = 8 * 4; // buffer size in bytes
   mbox[1] = REQUEST_CODE;
   // tags begin
@@ -40,7 +40,7 @@ unsigned int get_arm_memory(volatile unsigned int mbox[36]){
 5. If not, then you can read from Mailbox 0 Read/Write register.
 6. Check if the value is the same as you wrote in step 1.
 */
-unsigned int mailbox_call(volatile unsigned int mbox[36], unsigned char ch){
+unsigned int mailbox_call(unsigned int *mbox, unsigned char ch){
   /* Combine the message address (upper 28 bits) with channel number (lower 4 bits) */
   unsigned int req = (((unsigned int)((unsigned long)mbox) & (~0xF)) | (ch & 0xF));
   /* wait until we can write to the mailbox */

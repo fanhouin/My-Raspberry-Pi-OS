@@ -2,6 +2,7 @@
 #define	IRQ_H_
 
 #include <gpio.h>
+#include <syscall.h>
 
 #define IRQ_BASIC_PENDING	    ((volatile unsigned int*)(MMIO_BASE+0x0000B200))
 #define IRQ_PENDING_1	    	((volatile unsigned int*)(MMIO_BASE+0x0000B204))
@@ -22,7 +23,7 @@
 #define SYSTEM_TIMER_IRQ_3	(1 << 3)
 #define NON_SECURE_TIMER_IRQ	(1 << 1)
 
-void irq_handler(unsigned long long, unsigned long long);
+void irq_handler(unsigned long long, TrapFrame*);
 void Time_interrupt(unsigned long long);
 void GPU_interrupt();
 

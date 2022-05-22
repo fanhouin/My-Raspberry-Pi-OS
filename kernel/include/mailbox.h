@@ -36,8 +36,8 @@
 #define MAILBOX_CH_COUNT    7
 #define MAILBOX_CH_PROP     8
 
-unsigned int get_board_revision(volatile unsigned int [36]);
-unsigned int get_arm_memory(volatile unsigned int [36]);
-unsigned int mailbox_call(volatile unsigned int [36], unsigned char);
+unsigned int get_board_revision(unsigned int [36]);
+unsigned int get_arm_memory(unsigned int [36]);
+unsigned int mailbox_call(unsigned int *, unsigned char);
 
 #endif

@@ -15,6 +15,12 @@ bootloader/src/*.elf
 bootloader/src/*.img
 bootloader/src/*.o
 bootloader/boot/*.o
+
+
+user/*.elf
+user/*.img
+user/build/*
+
 peda*
 .gdb*
 

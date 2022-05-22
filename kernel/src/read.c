@@ -71,6 +71,18 @@ int readline(char buf[MAX_SIZE], int size){
 }
 
 /* read n bytes from uart */
+int async_readnbyte(char buf[MAX_SIZE], int size){
+  unsigned int idx = 0;
+  char c;
+  while(idx < size && idx < MAX_SIZE){
+    c = async_uart_getc();
+    buf[idx++] = c;
+  }
+  buf[idx] = '\0';
+  return idx;
+}
+
+/* read n bytes from uart */
 int readnbyte(char buf[MAX_SIZE], int size){
   unsigned int idx = 0;
   char c;
