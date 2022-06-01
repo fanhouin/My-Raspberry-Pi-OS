@@ -41,7 +41,7 @@ void rootfs_init(char *fs_name){
     global_dentry = rootfs->root_dentry;
     global_fd_table = (File **)kmalloc(sizeof(File *) * MAX_FD_NUM);
 
-    vfs_initramfs_init();
+    // vfs_initramfs_init();
     vfs_dev_init();
 }
 

@@ -77,18 +77,17 @@ void sys_exec(TrapFrame *trapFrame){
 int do_exec(TrapFrame *trapFrame, const char *name, char *const argv[]){
     disable_irq();
     /* check if the file info exist */
-    // file_info fileInfo = cpio_find_file_info(name);
-    // if(fileInfo.filename == NULL) return -1;
+    file_info fileInfo = cpio_find_file_info(name);
+    if(fileInfo.filename == NULL) return -1;
 
     /* check if the file can create in new memory */
-    unsigned long file_size = 0;
-    void *thread_code_addr = vfs_load_program(name, &file_size);
+    void *thread_code_addr = cpio_load_program(&fileInfo);
     if(thread_code_addr == NULL) return -1;
     
     /* current thread will change the pc to new code addr */
     Thread *curr_thread = get_current();
     curr_thread->code_addr = thread_code_addr;
-    curr_thread->code_size = file_size;
+    curr_thread->code_size = fileInfo.datasize;
 
     /* set current trapFrame elr_el1(begin of code) and sp_el0(begin of user stack)*/
     trapFrame->elr_el1 = (unsigned long)curr_thread->code_addr;
@@ -124,17 +123,16 @@ int do_exec(TrapFrame *trapFrame, const char *name, char *const argv[]){
 int kernel_exec(char *name){
     disable_irq();
     /* check if the file info exist */
-    // file_info fileInfo = cpio_find_file_info(name);
-    // if(fileInfo.filename == NULL) return -1;
+    file_info fileInfo = cpio_find_file_info(name);
+    if(fileInfo.filename == NULL) return -1;
 
     /* check if the file can create in new memory */
-    unsigned long file_size;
-    void *thread_code_addr = vfs_load_program(name, &file_size); 
+    void *thread_code_addr = cpio_load_program(&fileInfo);
     if(thread_code_addr == NULL) return -1;
 
     Thread *new_thread = thread_create(thread_code_addr);
     new_thread->code_addr = thread_code_addr;
-    new_thread->code_size = file_size;
+    new_thread->code_size = fileInfo.datasize;
     print_string(UITOHEX, "[*] kernel_exec: new_thread->code_addr: 0x", (unsigned long long)new_thread->code_addr, 1);
 
     /* copy the golbal dir / dentry in the new_thread*/
