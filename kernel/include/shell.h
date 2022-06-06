@@ -26,11 +26,18 @@ void Reboot();
 /* Main Shell */
 void ShellLoop();
 
-void Ls();
-void Cat(char [MAX_SIZE]);
-void Run(char [MAX_SIZE]);
+void cpio_ls();
+void cpio_cat(char [MAX_SIZE]);
+void cpio_exec(char [MAX_SIZE]);
 
 void SetTimeOut(char [MAX_SIZE]);
 void TestTimeOut(char [MAX_SIZE]);
+
+void ls_arg(char *);
+void chdir_arg(char *);
+void mkdir_arg(char *);
+void mount_arg(char *);
+void umount_arg(char *);
+void exec_arg(char *);
 
 #endif

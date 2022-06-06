@@ -73,7 +73,7 @@ void recv_interrupt_handler(){
 }
 
 char async_uart_getc(){
-  // enable_AUX_MU_IER_r();
+  enable_AUX_MU_IER_r();
   /* wait until something is in the read buffer (read_set_idx != read_get_idx) */
   while(read_get_idx == read_set_idx) {asm volatile("nop");}
 

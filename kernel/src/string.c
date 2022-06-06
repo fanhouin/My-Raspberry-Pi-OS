@@ -177,8 +177,8 @@ unsigned int hextoui(const char buf[MAX_SIZE], unsigned int size){
   return num;
 }
 
-void memcpy(char *d, const char *s, unsigned int len){
-  for(unsigned int i = 0; i < len; i++){
+void memcpy(char *d, const char *s, unsigned long len){
+  for(unsigned long i = 0; i < len; i++){
     d[i] = s[i];
   }
 }

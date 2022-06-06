@@ -3,7 +3,6 @@
 
 #define MAX_SIZE 512
 
-
 enum print_type{
     UITOHEX,
     UITOA,
@@ -41,7 +40,7 @@ unsigned int atoui(const char *);
 /* hex string to unsigned int */
 unsigned int hextoui(const char *, unsigned int);
 
-void memcpy(char *, const char *, unsigned int);
+void memcpy(char *, const char *, unsigned long);
 void memset(char *, const char, unsigned int);
 void strcpy(char *, const char *);
 void strcat(char *, const char *);

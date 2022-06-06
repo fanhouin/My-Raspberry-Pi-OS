@@ -1,3 +1,3 @@
 file kernel8.elf
-b *0x841e8
+b *tmpfs_read
 target remote :1234

@@ -29,9 +29,11 @@ typedef struct _Timer{
     struct _Timer *prev;
 }Timer;
 
-void add_timer(TimerTask, unsigned long long, void *);
+void add_timer(TimerTask, unsigned long long, void *, unsigned int);
 void timeout_print(void *);
+void sched_timeout(void *);
 void timer_interrupt_handler();
 void timer_interrupt_handler_el0();
+void enable_el0_get_timer();
 
 #endif
