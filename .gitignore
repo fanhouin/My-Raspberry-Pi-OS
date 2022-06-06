@@ -17,10 +17,11 @@ bootloader/src/*.img
 bootloader/src/*.o
 bootloader/boot/*.o
 
-
 user/*.elf
 user/*.img
 user/build/*
+
+final_project/nand_*
 
 peda*
 .gdb*
