@@ -193,15 +193,19 @@ static unsigned int get_next_pca()
 static int ftl_read( char* buf, size_t lba)
 {
     // TODO
-    memcpy(buf, L2P + lba, 512);
-    printf("%s\n", __func__);
+    if(L2P[lba] == INVALID_PCA){
+        return -EINVAL;
+    }
+    return nand_read(buf, L2P[lba]);
 }
 
 static int ftl_write(const char* buf, size_t lba_range, size_t lba)
 {
     // TODO
-    memcpy(L2P + lba, buf, 512);
-    
+    if(L2P[lba] == INVALID_PCA){
+        L2P[lba] = get_next_pca();
+    }
+    return nand_write(buf, L2P[lba]);
 }
 
 
@@ -296,6 +300,7 @@ static int ssd_do_write(const char* buf, size_t size, off_t offset)
     int tmp_lba, tmp_lba_range, process_size;
     int idx, curr_size, remain_size, rst;
     char* tmp_buf;
+    off_t first_offset = offset % 512;
 
     host_write_size += size;
     if (ssd_expand(offset + size) != 0)
@@ -305,22 +310,23 @@ static int ssd_do_write(const char* buf, size_t size, off_t offset)
 
     tmp_lba = offset / 512;
     tmp_lba_range = (offset + size - 1) / 512 - (tmp_lba) + 1;
-
     process_size = 0;
     remain_size = size;
     curr_size = 0;
     for (idx = 0; idx < tmp_lba_range; idx++)
     {    // TODO
         curr_size = remain_size > 512 ? 512 : remain_size;
-        if(offset % 512 > 0) curr_size - offset % 512;
+        if(first_offset > 0) {
+            curr_size -= first_offset;
+            first_offset = 0;
+        }
         tmp_buf = calloc(curr_size, sizeof(char));
         memcpy(tmp_buf, buf + process_size, curr_size);
-        ftl_write(tmp_buf + process_size, tmp_lba + idx);
+        ftl_write(tmp_buf, tmp_lba_range, tmp_lba + idx);
 
         process_size += curr_size;
         remain_size -= curr_size;
         free(tmp_buf);
-
     }
 
     return size;
