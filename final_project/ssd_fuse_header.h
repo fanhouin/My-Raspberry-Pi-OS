@@ -8,6 +8,8 @@
 #include <sys/types.h>
 #include <sys/uio.h>
 #include <sys/ioctl.h>
+#include "list.h"
+
 #define PHYSICAL_NAND_NUM (13)
 #define LOGICAL_NAND_NUM (10)
 #define NAND_SIZE_KB (50)
@@ -19,6 +21,13 @@
 #define PAGE_PER_BLOCK     (10)
 #define NAND_LOCATION  "/home/fan/Desktop/osc2022/final_project"
 
+
+typedef struct {
+  struct list_head list;
+  int idx;
+} LRU;
+
+int gc();
 enum
 {
     SSD_GET_LOGIC_SIZE   = _IOR('E', 0, size_t),
