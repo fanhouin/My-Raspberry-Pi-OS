@@ -22,6 +22,7 @@ user/*.img
 user/build/*
 
 final_project/nand_*
+final_project/*.o
 
 peda*
 .gdb*
