@@ -457,6 +457,23 @@ static int ssd_write(const char* path, const char* buf, size_t size,
     return ssd_do_write(buf, size, offset);
 }
 
+struct min_sorted_block{
+    unsigned int count;
+    unsigned int idx;
+};
+int compare_block(const void* a, const void* b){
+    struct min_sorted_block* aa = (struct min_sorted_block*)a;
+    struct min_sorted_block* bb = (struct min_sorted_block*)b;
+    if(aa->count > bb->count){
+        return 1;
+    }
+    else if(aa->count < bb->count){
+        return -1;
+    }
+    else{
+        return 0;
+    }
+}
 
 int gc(){
     printf("=============================[gc start]=============================\n");
@@ -466,22 +483,39 @@ int gc(){
     size_t lba;
     char *tmp_buf;
     int *del_buf;
+
+    /* use sort to find the smallest block */
+    struct min_sorted_block *min_valid_block = calloc(PHYSICAL_NAND_NUM, sizeof(struct min_sorted_block));
+    for(int i = 0; i < PHYSICAL_NAND_NUM; i++){
+        min_valid_block[i].count = valid_count[i];
+        min_valid_block[i].idx = i;
+    }
+    qsort(min_valid_block, PHYSICAL_NAND_NUM, sizeof(struct min_sorted_block*), compare_block);
+
+    for(int i = 0; i < PHYSICAL_NAND_NUM; i++){
+        printf("count = %d | idx = %d \n", min_valid_block[i].count, min_valid_block[i].idx);
+    }
     
-    // while(1){
-        del_buf = (int *)calloc(PAGE_PER_BLOCK, sizeof(int));
+    for(int i = 0; min_valid_block[i].count != FREE_BLOCK; i++){
         /* can be optimized? */
-        for(int i = 0; i < PHYSICAL_NAND_NUM; i++){
-            printf("%d -> ",valid_count[i]);
-            // if(valid_count[i] == FREE_BLOCK) invalid_idx = i;
-            if(valid_count[i] < min && valid_count[i] > 0){
-                min = valid_count[i];
-                min_block = i;
-            }
-        }
-        printf("\n");
-        if(min >= 10 || (min > new_block_idx && new_block_idx > 0)) goto GC_END;
+        // for(int i = 0; i < PHYSICAL_NAND_NUM; i++){
+        //     printf("%d -> ",valid_count[i]);
+        //     // if(valid_count[i] == FREE_BLOCK) invalid_idx = i;
+        //     if(valid_count[i] < min && valid_count[i] > 0){
+        //         min = valid_count[i];
+        //         min_block = i;
+        //     }
+        // }
+        // printf("\n");
+        // if(min >= 10 || (min > new_block_idx && new_block_idx > 0)) goto GC_END;
 
+        min_block = min_valid_block[i].idx;
+        min = min_valid_block[i].count;
+        printf("new_block_idx = %d\n", new_block_idx);
+        
+        if(min >= 10 || (min > new_block_idx && !first)) goto GC_END;
 
+        del_buf = (int *)calloc(PAGE_PER_BLOCK, sizeof(int));
         for(; new_block_idx < PAGE_PER_BLOCK; new_block_idx++){
             if(P2L[min_block * PAGE_PER_BLOCK + new_block_idx] == INVALID_PCA) continue;
             lba = P2L[min_block * PAGE_PER_BLOCK + new_block_idx];
@@ -519,7 +553,8 @@ int gc(){
         }
         nand_erase(min_block);
         free(del_buf);
-    // }
+        // break;
+    }
 
 GC_END:
     printf("=============================[gc end]=============================\n");
