@@ -19,6 +19,7 @@
 #define OUT_OF_BLOCK     (0xFFFF)
 #define FULL_PCA     (0xFFFFFFFE)
 #define PAGE_PER_BLOCK     (10)
+#define PAGE_INDEX (1 << 16)
 #define NAND_LOCATION  "/home/fan/Desktop/osc2022/final_project"
 
 
@@ -28,6 +29,8 @@ typedef struct {
 } LRU;
 
 int gc();
+int pca2idx(int pca);
+void update_lru(int block);
 enum
 {
     SSD_GET_LOGIC_SIZE   = _IOR('E', 0, size_t),

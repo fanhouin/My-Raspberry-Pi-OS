@@ -157,6 +157,10 @@ static unsigned int get_next_block()
             // printf("curr_pca.pca = %d\n", curr_pca.pca);
             free_block_number--;
             valid_count[curr_pca.fields.nand] = 0;
+            if(free_block_number == 0){
+                gc();
+                return get_next_pca();
+            } 
             return curr_pca.pca;
         }
     }
@@ -175,6 +179,7 @@ static unsigned int get_next_pca()
 
     if(curr_pca.fields.lba == 9)
     {
+        // if(free_block_number == 1) gc();
         int temp = get_next_block();
         if (temp == OUT_OF_BLOCK)
         {
@@ -198,7 +203,7 @@ static unsigned int get_next_pca()
 }
 
 /* update lru */
-static void update_lru(int block){
+void update_lru(int block){
     list_del(&lru_table[block].list);
     INIT_LIST_HEAD(&lru_table[block].list);
     list_add(&lru_table[block].list, &lru_head->list);
@@ -212,6 +217,10 @@ static void update_lru(int block){
     printf("update block = %d\n", block);
 }
 
+int pca2idx(int pca){
+    return ((pca >> 16) * PAGE_PER_BLOCK) + (pca % PAGE_INDEX);
+}
+
 static int ftl_read( char* buf, size_t lba)
 {
     // TODO
@@ -219,8 +228,9 @@ static int ftl_read( char* buf, size_t lba)
     int pca = L2P[lba];
     if(pca == INVALID_PCA){
         printf("[x] FTL: don't have pca for lba = %ld\n", lba);
-        return INVALID_PCA;
+        return 512;
     }
+    
     int size = nand_read(buf, pca);
     if(size == -EINVAL){
         return -EINVAL;
@@ -232,22 +242,26 @@ static int ftl_read( char* buf, size_t lba)
     return size;
 }
 
-static int ftl_write(const char* buf, size_t lba_range, size_t lba, int read_mod_write)
+static int ftl_write(const char* buf, size_t lba_range, size_t lba)
 {
     // TODO
-    int override = 1;
     int pca = L2P[lba];
-    printf("[*] before pca = %d",pca);
-    if(pca == INVALID_PCA){
-        L2P[lba] = get_next_pca();
-        pca = L2P[lba];
-        override = 0;
+    printf("[*] before pca.nand = %d | pca.lba = %d\n", pca >> 16, pca % PAGE_INDEX);
+    if(pca != INVALID_PCA && pca != OUT_OF_BLOCK){
+        P2L[pca2idx(pca)] = INVALID_LBA;
+        valid_count[pca >> 16]--;
+        printf("[*] valid!!! valid_count[%d] =  %d\n", pca >> 16, valid_count[pca >> 16]);
     }
-    if(pca == OUT_OF_BLOCK){
+    else if(pca == OUT_OF_BLOCK){
         printf("[x] write fail at lba = %ld\n", lba);
         return OUT_OF_BLOCK;
     }
-    printf(" | after pca = %d\n", pca);
+
+    L2P[lba] = get_next_pca();
+    pca = L2P[lba];
+
+    printf("[*] after pca.lba = %d | pca.lba = %d\n", pca >> 16, pca % PAGE_INDEX);
+    // printf(" | after pca = %d\n", pca);
 
     int size = nand_write(buf, pca);
     if(size == -EINVAL){
@@ -258,13 +272,7 @@ static int ftl_write(const char* buf, size_t lba_range, size_t lba, int read_mod
      * udpate P2L table
      * physical_nand = 13, logical_nand = 10, need to use pca>>16 to select which block
     */
-    P2L[((pca >> 16) * PAGE_PER_BLOCK) + (lba % PAGE_PER_BLOCK)] = lba;
-
-    /* if override the page, need to sub the valid_count */
-    if(override || read_mod_write) {
-        valid_count[pca >> 16]--;
-    }
-
+    P2L[pca2idx(pca)] = lba;
     
     /* update lru */
     // update_lru(pca >> 16);
@@ -372,8 +380,6 @@ static int ssd_do_write(const char* buf, size_t size, off_t offset)
     int tmp_lba, tmp_lba_range, process_size;
     int curr_size, remain_size, re;
     char* tmp_buf;
-    gc();
-
 
     off_t lba_offset = offset % 512;
 
@@ -393,9 +399,10 @@ static int ssd_do_write(const char* buf, size_t size, off_t offset)
     if(lba_offset > 0){
         off_t read_offset = offset - lba_offset;
         curr_size = remain_size > 512 ? 512 : remain_size;
-        curr_size -= lba_offset;
+        if(curr_size > 512 - lba_offset) curr_size = 512 - lba_offset;
         tmp_buf = calloc(512, sizeof(char));
-        printf("[*] read_off = %ld\n", read_offset);
+        // memset(tmp_buf, 0, 512);
+        printf("[*] write_offset = %ld | read_offset = %ld\n", offset,read_offset);
         printf("[*] lba_offset = %ld | remain_size = %d | curr_size = %d\n", lba_offset, remain_size, curr_size);
 
         re = ssd_do_read(tmp_buf, 512, read_offset);
@@ -404,18 +411,9 @@ static int ssd_do_write(const char* buf, size_t size, off_t offset)
         }
 
         memcpy(tmp_buf + lba_offset, buf, curr_size);
+        // printf("%s\n", tmp_buf);
 
-        /*
-         * if re == INVALID_PCA, valid_count++ 
-         * if re != INVALID_PCA, don't change valid_count because the page has data already;
-         */
-        if(re == INVALID_PCA){
-            re = ftl_write(tmp_buf, tmp_lba_range, tmp_lba, 0);
-        }
-        else{
-            re = ftl_write(tmp_buf, tmp_lba_range, tmp_lba, 1);
-        }
-
+        ftl_write(tmp_buf, tmp_lba_range, tmp_lba);
         if(re == -EINVAL){
             return -EINVAL;
         }
@@ -427,13 +425,16 @@ static int ssd_do_write(const char* buf, size_t size, off_t offset)
         free(tmp_buf);
     }
 
-    for (; idx < tmp_lba_range; idx++)
+    for (; idx < tmp_lba_range && remain_size > 0; idx++)
     {    // TODO
         // printf("[*] lba_offset = %ld | remain_size = %d | curr_size = %d\n", lba_offset, remain_size, curr_size);
         curr_size = remain_size > 512 ? 512 : remain_size;
+        printf("[*] write_offset = %ld | tmp_lba_range = %d\n", offset, tmp_lba_range);
+        printf("[*] remain_size = %d | curr_size = %d\n", remain_size, curr_size);
         tmp_buf = calloc(512, sizeof(char));
         memcpy(tmp_buf, buf + process_size, curr_size);
-        re = ftl_write(tmp_buf, tmp_lba_range, tmp_lba + idx, 0);
+        // printf("%s\n", tmp_buf);
+        re = ftl_write(tmp_buf, tmp_lba_range, tmp_lba + idx);
         if(re == -EINVAL){
             return -EINVAL;
         }
@@ -496,65 +497,69 @@ int gc(){
         printf("count = %d | idx = %d \n", min_valid_block[i].count, min_valid_block[i].idx);
     }
     
-    for(int i = 0; min_valid_block[i].count != FREE_BLOCK; i++){
-        /* can be optimized? */
-        // for(int i = 0; i < PHYSICAL_NAND_NUM; i++){
-        //     printf("%d -> ",valid_count[i]);
-        //     // if(valid_count[i] == FREE_BLOCK) invalid_idx = i;
-        //     if(valid_count[i] < min && valid_count[i] > 0){
-        //         min = valid_count[i];
-        //         min_block = i;
-        //     }
-        // }
-        // printf("\n");
-        // if(min >= 10 || (min > new_block_idx && new_block_idx > 0)) goto GC_END;
+    // for(int i = 0; min_valid_block[i].count != FREE_BLOCK; i++){
+    /* can be optimized? */
+    // for(int i = 0; i < PHYSICAL_NAND_NUM; i++){
+    //     printf("%d -> ",valid_count[i]);
+    //     // if(valid_count[i] == FREE_BLOCK) invalid_idx = i;
+    //     if(valid_count[i] < min && valid_count[i] > 0){
+    //         min = valid_count[i];
+    //         min_block = i;
+    //     }
+    // }
+    // printf("\n");
+    // if(min >= 10 || (min > new_block_idx && new_block_idx > 0)) goto GC_END;
 
-        min_block = min_valid_block[i].idx;
-        min = min_valid_block[i].count;
-        printf("new_block_idx = %d\n", new_block_idx);
+    min_block = min_valid_block[0].idx;
+    min = min_valid_block[0].count;
+    if(min_block == curr_pca.pca >> 16){
+        min_block = min_valid_block[1].idx;
+        min = min_valid_block[1].count;
+    }
+    // printf("new_block_idx = %d\n", new_block_idx);
+    printf("min_block = %d | min_count = %d\n", min_block, min);    
+    if(min >= 10) goto GC_END;
+
+    printf("[*] gc: new block = %d\n", curr_pca.pca >> 16);
+    pca = curr_pca.pca;
+    free_block_number++;
+
+    del_buf = (int *)calloc(PAGE_PER_BLOCK, sizeof(int));
+    for(; new_block_idx < PAGE_PER_BLOCK; new_block_idx++){
+        if(P2L[min_block * PAGE_PER_BLOCK + new_block_idx] == INVALID_PCA) continue;
+        lba = P2L[min_block * PAGE_PER_BLOCK + new_block_idx];
+        tmp_buf = (char *)calloc(512, sizeof(char));
+        ssd_do_read(tmp_buf, 512, lba * 512);
+
+        if(first) 
+            first = 0;
+        else
+            pca = get_next_pca();
         
-        if(min >= 10 || (min > new_block_idx && !first)) goto GC_END;
-
-        del_buf = (int *)calloc(PAGE_PER_BLOCK, sizeof(int));
-        for(; new_block_idx < PAGE_PER_BLOCK; new_block_idx++){
-            if(P2L[min_block * PAGE_PER_BLOCK + new_block_idx] == INVALID_PCA) continue;
-            lba = P2L[min_block * PAGE_PER_BLOCK + new_block_idx];
-            tmp_buf = (char *)calloc(512, sizeof(char));
-            ssd_do_read(tmp_buf, 512, lba * 512);
-
-            if(first){
-                pca = get_next_block();
-                first = 0;
             
-                if(pca == OUT_OF_BLOCK){
-                    printf("[x] gc: pca OUT_OF_BLOCK\n");
-                    return OUT_OF_BLOCK;
-                }
-            }
-            else{
-                pca = get_next_pca();
-            }
-            /* do_write in new block of the idx */
-            int size = nand_write(tmp_buf, pca);
-            if(size == -EINVAL){
-                return -EINVAL;
-                free(tmp_buf);
-            }
-
-            /* if write success, udpate L2P & P2L table & del_buf*/
-            L2P[lba] = pca; 
-            P2L[((pca >> 16) * PAGE_PER_BLOCK) + (lba % PAGE_PER_BLOCK)] = lba;
-            del_buf[del_idx++] = min_block * PAGE_PER_BLOCK + new_block_idx; 
-            printf("move %d to %ld\n", min_block * PAGE_PER_BLOCK + new_block_idx, ((pca >> 16) * PAGE_PER_BLOCK) + (lba % PAGE_PER_BLOCK));
+        /* do_write in new block of the idx */
+        int size = nand_write(tmp_buf, pca);
+        if(size == -EINVAL){
+            return -EINVAL;
             free(tmp_buf);
         }
-        for(int i = 0; i < del_idx; i++){
-            P2L[del_buf[i]] = INVALID_LBA;
-        }
-        nand_erase(min_block);
-        free(del_buf);
-        // break;
+
+        /* if write success, udpate L2P & P2L table & del_buf*/
+        L2P[lba] = pca; 
+        P2L[pca2idx(pca)] = lba;
+        del_buf[del_idx++] = min_block * PAGE_PER_BLOCK + new_block_idx; 
+        printf("move %d to %d\n", min_block * PAGE_PER_BLOCK + new_block_idx, pca2idx(pca));
+        free(tmp_buf);
     }
+    for(int i = 0; i < del_idx; i++){
+        P2L[del_buf[i]] = INVALID_LBA;
+    }
+    nand_erase(min_block);
+    free(del_buf);
+    // curr_pca.pca++;
+    
+        // break;
+    // }
 
 GC_END:
     printf("=============================[gc end]=============================\n");
