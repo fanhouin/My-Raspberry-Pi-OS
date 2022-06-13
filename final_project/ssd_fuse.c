@@ -377,11 +377,10 @@ static int ssd_read(const char* path, char* buf, size_t size,
 static int ssd_do_write(const char* buf, size_t size, off_t offset)
 {
     int idx = 0;
+    int first = 1;
     int tmp_lba, tmp_lba_range, process_size;
     int curr_size, remain_size, re;
     char* tmp_buf;
-
-    off_t lba_offset = offset % 512;
 
     host_write_size += size;
     if (ssd_expand(offset + size) != 0)
@@ -395,50 +394,39 @@ static int ssd_do_write(const char* buf, size_t size, off_t offset)
     remain_size = size;
     curr_size = 0;
 
-    /* read-modify-write */
-    if(lba_offset > 0){
-        off_t read_offset = offset - lba_offset;
-        curr_size = remain_size > 512 ? 512 : remain_size;
-        if(curr_size > 512 - lba_offset) curr_size = 512 - lba_offset;
-        tmp_buf = calloc(512, sizeof(char));
-        // memset(tmp_buf, 0, 512);
-        printf("[*] write_offset = %ld | read_offset = %ld\n", offset,read_offset);
-        printf("[*] lba_offset = %ld | remain_size = %d | curr_size = %d\n", lba_offset, remain_size, curr_size);
-
-        re = ssd_do_read(tmp_buf, 512, read_offset);
-        if(re == -EINVAL){
-            return -EINVAL;
-        }
-
-        memcpy(tmp_buf + lba_offset, buf, curr_size);
-        // printf("%s\n", tmp_buf);
-
-        ftl_write(tmp_buf, tmp_lba_range, tmp_lba);
-        if(re == -EINVAL){
-            return -EINVAL;
-        }
-
-        // valid_count[curr_pca.fields.nand]--;
-        process_size += curr_size;
-        remain_size -= curr_size;
-        idx = 1;
-        free(tmp_buf);
-    }
-
+    off_t lba_offset = offset % 512;
+    off_t read_offset = offset - lba_offset;
     for (; idx < tmp_lba_range && remain_size > 0; idx++)
     {    // TODO
-        // printf("[*] lba_offset = %ld | remain_size = %d | curr_size = %d\n", lba_offset, remain_size, curr_size);
         curr_size = remain_size > 512 ? 512 : remain_size;
+        if((curr_size > 512 - lba_offset) && first)
+            curr_size = 512 - lba_offset;
         printf("[*] write_offset = %ld | tmp_lba_range = %d\n", offset, tmp_lba_range);
         printf("[*] remain_size = %d | curr_size = %d\n", remain_size, curr_size);
         tmp_buf = calloc(512, sizeof(char));
-        memcpy(tmp_buf, buf + process_size, curr_size);
-        // printf("%s\n", tmp_buf);
+
+        /* read */
+        if(lba_offset > 0 && first)
+            re = ssd_do_read(tmp_buf, 512, read_offset);
+        else
+            re = ssd_do_read(tmp_buf, 512, (tmp_lba + idx) * 512);
+        if(re == -EINVAL){
+            return -EINVAL;
+        }
+
+        /* modify */
+        if(lba_offset > 0 && first){
+            memcpy(tmp_buf + lba_offset, buf, curr_size);
+            first = 0;
+        }
+        else
+            memcpy(tmp_buf, buf + process_size, curr_size);
+
+        /* write */
         re = ftl_write(tmp_buf, tmp_lba_range, tmp_lba + idx);
         if(re == -EINVAL){
             return -EINVAL;
         }
-        // valid_count[my_pca.fields.nand]++;
         process_size += curr_size;
         remain_size -= curr_size;
         free(tmp_buf);
@@ -497,7 +485,6 @@ int gc(){
         printf("count = %d | idx = %d \n", min_valid_block[i].count, min_valid_block[i].idx);
     }
     
-    // for(int i = 0; min_valid_block[i].count != FREE_BLOCK; i++){
     /* can be optimized? */
     // for(int i = 0; i < PHYSICAL_NAND_NUM; i++){
     //     printf("%d -> ",valid_count[i]);
