@@ -23,11 +23,11 @@ case "$1" in
         cat /dev/urandom | tr -dc '[:alpha:][:digit:]' | head -c 11264 > ${TEMP}
         for i in $(seq 0 9)
         do
-            dd if=${TEMP} skip=$(($i*1024)) of=${GOLDEN} iflag=skip_bytes oflag=seek_bytes seek=$(($i*5120)) bs=1024 count=1 conv=notrunc 2> /dev/null
-            dd if=${TEMP} skip=$(($i*1024)) of=${SSD_FILE} iflag=skip_bytes oflag=seek_bytes seek=$(($i*5120)) bs=1024 count=1 conv=notrunc 2> /dev/null
+            dd if=${TEMP} iflag=skip_bytes skip=$(($i*1024)) of=${GOLDEN}  oflag=seek_bytes seek=$(($i*5120)) bs=1024 count=1 conv=notrunc 2> /dev/null
+            dd if=${TEMP} iflag=skip_bytes skip=$(($i*1024)) of=${SSD_FILE}  oflag=seek_bytes seek=$(($i*5120)) bs=1024 count=1 conv=notrunc 2> /dev/null
         done
-        dd if=${TEMP} skip=10240 of=${GOLDEN} iflag=skip_bytes oflag=seek_bytes seek=0 bs=1024 count=1 conv=notrunc 2> /dev/null
-        dd if=${TEMP} skip=10240 of=${SSD_FILE} iflag=skip_bytes oflag=seek_bytes seek=0 bs=1024 count=1 conv=notrunc 2> /dev/null
+        dd if=${TEMP} iflag=skip_bytes skip=10240 of=${GOLDEN}  oflag=seek_bytes seek=0 bs=1024 count=1 conv=notrunc 2> /dev/null
+        dd if=${TEMP} iflag=skip_bytes skip=10240 of=${SSD_FILE}  oflag=seek_bytes seek=0 bs=1024 count=1 conv=notrunc 2> /dev/null
         ;;
     *)
         printf "Usage: sh test.sh test_pattern\n"
@@ -38,7 +38,7 @@ case "$1" in
         printf "test2:\n"
         printf "       1: Sequential write whole SSD size(51200bytes)\n"
         printf "       2: Override 0, 1, 10, 11, 20, 21, 30, 31, 40, 41, 50, 51, 60, 61, 70, 71, 80, 81, 90, 91 page \n"
-        printf "       2: Override 0, 1 page \n"
+        printf "       3: Override 0, 1 page \n"
         printf "       test GC's result\n"
         return 
         ;;
