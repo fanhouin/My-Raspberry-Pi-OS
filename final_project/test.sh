@@ -54,5 +54,5 @@ else
 fi
 
 echo "WA:"
-./ssd_fuse_dut.o /tmp/ssd/ssd_file W
+./ssd_fuse_dut /tmp/ssd/ssd_file W
 rm -rf ${TEMP} ${GOLDEN}
