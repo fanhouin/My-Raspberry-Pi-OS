@@ -362,7 +362,6 @@ static int ssd_read(const char* path, char* buf, size_t size,
 static int ssd_do_write(const char* buf, size_t size, off_t offset)
 {
     int idx = 0;
-    int first = 1;
     int tmp_lba, tmp_lba_range, process_size;
     int curr_size, remain_size, re;
     char* tmp_buf;
@@ -384,14 +383,14 @@ static int ssd_do_write(const char* buf, size_t size, off_t offset)
     for (; idx < tmp_lba_range && remain_size > 0; idx++)
     {    // TODO
         curr_size = remain_size > 512 ? 512 : remain_size;
-        if((curr_size > 512 - lba_offset) && first)
+        if((curr_size > 512 - lba_offset) && idx == 0)
             curr_size = 512 - lba_offset;
         // printf("[*] write_offset = %ld | tmp_lba_range = %d\n", offset, tmp_lba_range);
         // printf("[*] remain_size = %d | curr_size = %d\n", remain_size, curr_size);
         tmp_buf = calloc(512, sizeof(char));
 
         /* read */
-        if(lba_offset > 0 && first)
+        if(lba_offset > 0 && idx == 0)
             re = ssd_do_read(tmp_buf, 512, read_offset);
         else
             re = ssd_do_read(tmp_buf, 512, (tmp_lba + idx) * 512);
@@ -400,10 +399,8 @@ static int ssd_do_write(const char* buf, size_t size, off_t offset)
         }
 
         /* modify */
-        if(lba_offset > 0 && first){
+        if(lba_offset > 0 && idx == 0)
             memcpy(tmp_buf + lba_offset, buf, curr_size);
-            first = 0;
-        }
         else
             memcpy(tmp_buf, buf + process_size, curr_size);
 
@@ -452,11 +449,10 @@ int compare_block(const void* a, const void* b){
 int gc(){
     printf("=============================[gc start]=============================\n");
     int min = 999;
-    int first = 1, min_block = 0, new_block_idx = 0;
+    int first = 1, min_block = 0;
     int pca, del_idx = 0;
     size_t lba;
     char *tmp_buf;
-    int *del_buf;
 
     /* use sort to find the smallest block */
     struct min_sorted_block *min_valid_block = calloc(PHYSICAL_NAND_NUM, sizeof(struct min_sorted_block));
@@ -466,9 +462,9 @@ int gc(){
     }
     qsort(min_valid_block, PHYSICAL_NAND_NUM, sizeof(struct min_sorted_block*), compare_block);
 
-    for(int i = 0; i < PHYSICAL_NAND_NUM; i++){
-        printf("count = %d | idx = %d \n", min_valid_block[i].count, min_valid_block[i].idx);
-    }
+    // for(int i = 0; i < PHYSICAL_NAND_NUM; i++){
+    //     printf("count = %d | idx = %d \n", min_valid_block[i].count, min_valid_block[i].idx);
+    // }
 
     min_block = min_valid_block[0].idx;
     min = min_valid_block[0].count;
@@ -486,17 +482,19 @@ int gc(){
     } 
 
     printf("[*] gc: new block = %d\n", curr_pca.pca >> 16);
-    pca = curr_pca.pca;
+    
 
-    del_buf = (int *)calloc(PAGE_PER_BLOCK, sizeof(int));
-    for(; new_block_idx < PAGE_PER_BLOCK; new_block_idx++){
-        if(P2L[min_block * PAGE_PER_BLOCK + new_block_idx] == INVALID_PCA) continue;
-        lba = P2L[min_block * PAGE_PER_BLOCK + new_block_idx];
+    for(int page_idx = 0; page_idx < PAGE_PER_BLOCK; page_idx++){
+        int min_page_idx = min_block * PAGE_PER_BLOCK + page_idx;
+        if(P2L[min_page_idx] == INVALID_LBA) continue;
+        lba = P2L[min_page_idx];
         tmp_buf = (char *)calloc(512, sizeof(char));
         ssd_do_read(tmp_buf, 512, lba * 512);
 
-        if(first) 
+        if(first) {
+            pca = curr_pca.pca;
             first = 0;
+        }
         else
             pca = get_next_pca();
         
@@ -511,21 +509,13 @@ int gc(){
         /* if write success, udpate L2P & P2L table & del_buf*/
         L2P[lba] = pca; 
         P2L[pca2idx(pca)] = lba;
-        del_buf[del_idx++] = min_block * PAGE_PER_BLOCK + new_block_idx; 
-        printf("move %d to %d\n", min_block * PAGE_PER_BLOCK + new_block_idx, pca2idx(pca));
+        P2L[min_page_idx] = INVALID_LBA;
+        // printf("move %d to %d\n", page_idx, pca2idx(pca));
         free(tmp_buf);
     }
-    for(int i = 0; i < del_idx; i++){
-        P2L[del_buf[i]] = INVALID_LBA;
-    }
-    nand_erase(min_block);
-    free(del_buf);
     free_block_number++;
-    // curr_pca.pca++;
+    nand_erase(min_block);
     
-        // break;
-    // }
-
 GC_END:
     printf("=============================[gc end]=============================\n");
     return 0;

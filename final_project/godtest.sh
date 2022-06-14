@@ -100,6 +100,18 @@ case "$1" in
         cat /dev/urandom | tr -dc '[:alpha:][:digit:]' | head -c 51200 | tee ${SSD_FILE} > ${GOLDEN} 2> /dev/null
         ;;
 
+    ## random test
+    "test4")
+        cat /dev/urandom | tr -dc '[:alpha:][:digit:]' | head -c 51200 > ${TEMP}
+        for j in $(seq 0 3000)
+        do
+            TEMPRAND1=$((((RANDOM<<15)|RANDOM)%50000))
+            TEMPRAND2=$((((RANDOM<<15)|RANDOM)%50000))
+            TEMPRAND3=$((((RANDOM<<15)|RANDOM)%1024))
+            dd if=${TEMP} iflag=skip_bytes skip=$TEMPRAND1 of=${GOLDEN} oflag=seek_bytes seek=$TEMPRAND2 bs=$TEMPRAND3 count=1 conv=notrunc 2> /dev/null
+            dd if=${TEMP} iflag=skip_bytes skip=$TEMPRAND1 of=${SSD_FILE} oflag=seek_bytes seek=$TEMPRAND2 bs=$TEMPRAND3 count=1 conv=notrunc 2> /dev/null
+        done
+        ;;
 
     *)
         printf "Usage: sh test.sh test_pattern\n"
