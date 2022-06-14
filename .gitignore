@@ -23,6 +23,8 @@ user/build/*
 
 final_project/nand_*
 final_project/*.o
+final_project/ssd_fuse_dut
+final_project/ssd_fuse
 
 peda*
 .gdb*

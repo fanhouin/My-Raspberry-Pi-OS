@@ -450,7 +450,7 @@ int gc(){
     printf("=============================[gc start]=============================\n");
     int min = 999;
     int first = 1, min_block = 0;
-    int pca, del_idx = 0;
+    int pca;
     size_t lba;
     char *tmp_buf;
 
