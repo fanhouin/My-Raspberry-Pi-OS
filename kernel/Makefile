@@ -41,6 +41,9 @@ run:
 run-display: 
 	qemu-system-aarch64 -M raspi3 -kernel kernel8.img -s -serial null -serial stdio -initrd initramfs.cpio -dtb bcm2710-rpi-3-b-plus.dtb
 
+run-disk:
+	qemu-system-aarch64 -M raspi3 -kernel kernel8.img -display none -s -serial null -serial stdio -initrd initramfs.cpio -dtb bcm2710-rpi-3-b-plus.dtb -drive if=sd,file=kernel8.img,format=raw,
+
 pty: 
 	qemu-system-aarch64 -M raspi3 -kernel kernel8.img -display none -s -serial null -serial pty -initrd initramfs.cpio -dtb bcm2710-rpi-3-b-plus.dtb
 

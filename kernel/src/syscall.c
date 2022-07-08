@@ -187,24 +187,6 @@ void *vfs_load_program(const char *pathname, unsigned long *size){
         return NULL;
     }
     
-    /* read the inode data */
-    // size_t offset = 0;
-    // char buf[MAX_SIZE];
-    // int read_size;
-    // while(1){
-    //     read_size = vfs_read(file, buf, MAX_SIZE);
-    //     if(read_size <= 0){
-    //         break;
-    //     } 
-    //     memcpy(thread_code_addr + offset, buf, read_size);
-    //     offset += read_size;
-    // }
-    // if(read_size < 0){
-    //     kfree(thread_code_addr);
-    //     thread_code_addr = NULL;
-    //     uart_puts("[x] vfs_load_program: load program error\n");
-    //     return NULL;
-    // } 
     *size = inode_head->size;
     vfs_close(file);
     return thread_code_addr;
@@ -260,10 +242,7 @@ int do_fork(TrapFrame *trapFrame){
         File *tmp = global_fd_table[i];
         if(tmp != NULL){
             File *new_file = kmalloc(sizeof(File));
-            new_file->f_ops = tmp->f_ops;
-            new_file->f_pos = tmp->f_pos;
-            new_file->vnode = tmp->vnode;
-            new_file->flags = tmp->flags;
+            memcpy((char *)new_file, (char *)tmp, sizeof(File));
             new_thread->fd_table[i] = new_file;
         }
     }
@@ -463,35 +442,6 @@ void sys_write(TrapFrame *trapFrame){
         trapFrame->x[0] = -1;
         goto DONE;
     }   
-
-    /* FIFO: uart file */
-    // if(fd == 1 || fd == 2){
-    //     /* stdout, write the data in uart file */
-    //     status = vfs_write(global_fd_table[fd], buf, count);
-    //     if(status < 0){
-    //         trapFrame->x[0] = status;
-    //         goto DONE;
-    //     }
-    //     /* reset the pos */
-    //     vfs_lseek64(global_fd_table[fd], 0, SEEK_SET);
-
-    //     /* stdin, read the data to the terminal */
-    //     size_t thesize = 0;
-    //     char buf2[MAX_SIZE];
-    //     int read_size;
-    //     while(1){
-    //         memset(buf2, 0, MAX_SIZE);
-    //         read_size = vfs_read(global_fd_table[fd], buf2, MAX_SIZE - 1);
-    //         if(read_size <= 0){
-    //             break;
-    //         } 
-    //         thesize += read_size;
-    //         uart_puts(buf2);
-    //     }
-    //     vfs_lseek64(global_fd_table[fd], 0, SEEK_SET);
-    //     trapFrame->x[0] = thesize;
-    //     goto DONE;
-    // }
 
     /* normal file */
     status = vfs_write(global_fd_table[fd], buf, count);
