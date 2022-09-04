@@ -1,5 +1,15 @@
 # Operating Systems Capstone 2022
 
+## Implemented Features
+- Bootloader
+- UART communication interface
+- Mailbox
+- Exception and Interrupt
+- Thread, User Process
+- System Call (e.g. fork, exec, signal, read, write).
+- Dynamic Memory Allocator (Buddy System)
+- Virtual File System (tmpfs).
+
 ## Run with QEMU
 ### Prerequisites
 ```bash
