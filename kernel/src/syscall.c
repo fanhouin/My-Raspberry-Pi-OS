@@ -145,7 +145,7 @@ int kernel_exec(char *name){
         new_thread->fd_table[i] = global_fd_table[i];
     }
 
-    set_period_timer_irq();
+    // set_period_timer_irq();
     sched_timeout("omg");
     enable_irq();
     asm volatile(

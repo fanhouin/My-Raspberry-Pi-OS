@@ -46,7 +46,7 @@ ENABLE_IRQ:
 void sig_register_handler(SigHandler handler){
     handler();
     asm volatile(
-        "mov x8, 20\n\t"
+        "mov x8, 10\n\t"
         "svc 0\n\t"
     );
 }
